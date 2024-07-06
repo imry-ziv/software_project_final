@@ -111,7 +111,7 @@ double *ddgFromA(int n, double *A, int* status)
             sum += A[Index(n, i, j)];
             D[Index(n, i, j)] = 0.0;
         }
-        D[index(n, i, i)] = sum;
+        D[Index(n, i, i)] = sum;
     }
     return D;
 }
@@ -130,7 +130,7 @@ double *normImpl(int n, int d, double *points, int* status)
 {
     int i;
     double *A, *D, *temp;
-    A = sym(n, d, points, status);
+    A = symImpl(n, d, points, status);
     if (0 != *status)
         return NULL;
     D = ddgFromA(n, A, status);
@@ -143,8 +143,10 @@ double *normImpl(int n, int d, double *points, int* status)
     temp = MultiplyMatrices(n, n, n, D, A, status);
     if (0 != *status)
         goto normImpl_free2;
-    //A is overwritten here since it's no longer in use
-    //it now stores the result of the calculation.
+    /*
+    A is overwritten here since it's no longer in use
+    It now stores the result of the calculation.
+    */
     MultiplyMatricesNonAlloc(n, n, n, temp, D, A);
 normImpl_free2:
     free(temp); 
@@ -211,6 +213,7 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
 double *symnmfImpl(int n, int k, double* W, double *H, int* status)
 {
     double *Hcur, *Hnext, *temp1, *temp2, *swap;
+    int i;
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
@@ -221,7 +224,7 @@ double *symnmfImpl(int n, int k, double* W, double *H, int* status)
     temp2 = AllocateMatrix(k, k, status);
     if (0 != *status)
         goto symnmfImpl_free3;
-    for (int i = 0; i < maxIteration; i++)
+    for (i = 0; i < maxIteration; i++)
     {
         ConvergenceStep(n, k, W, Hcur, Hnext, temp1, temp2);
         swap = Hcur;
@@ -273,7 +276,7 @@ double *norm(int n, int d, double *points)
     int *status;
     double *res;
     *status = 0;
-    res = norm(n, d, points, status);
+    res = normImpl(n, d, points, status);
     if (0 != status)
     {
         PRINTERROR;
@@ -296,12 +299,11 @@ double *symnmf(int n, int k, double* w, double *h)
     return res;
 }
 
-#pragma region main
+
 void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 {
     int convs, pointIndex, elem, firstNewline;
     char sep;
-    FILE *stream;
     firstNewline = 0;
     while (1)
     {
@@ -310,11 +312,11 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             break;
         ++firstNewline;
     }
-    rewind(stream, 0, SEEK_SET);
+    rewind(stream);
     elem = 0;
     while (1)
     {
-        convs = fscanf(stream, "%f", points + elem);
+        convs = fscanf(stream, "%lf", points + elem);
         if (ftell(stream) == firstNewline)
             break;
         ++elem;
@@ -324,16 +326,16 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
-			convs = fscanf(stream, "%f", points + index1(pointIndex, elem, d));
+			convs = fscanf(stream, "%lf", points + index1(pointIndex, elem, d));
 			if (1 != convs)
             {
 				*status = 1;
                 break;
             }
 			sep = fgetc(stream);
-			if (sep == ',' && elem < d - 1)
+			if (sep == ',' && elem < *d - 1)
 				continue;
-			if (sep == '\n' && elem == d - 1)
+			if (sep == '\n' && elem == *d - 1)
 				continue;
             *status = 1;
             break;
@@ -355,7 +357,7 @@ void PrintPoints(int n, double *points)
 	{
 		for (elem = 0; elem < n; elem++)
 		{
-			printf("%.4f", points[Index(n, i, elem)]);
+			printf("%.4lf", points[Index(n, i, elem)]);
 			if (elem == n - 1)
 				printf("\n");
 			else printf(",");
@@ -380,18 +382,17 @@ int CountPoints(FILE *stream)
 
 int main(int argc, char **argv)
 {
-    int k, *n, *d, *status; 
-    char *goal, *pointsFile;
+    int *n, *d, *status; 
+    char *goal;
     double *points, *res;
     FILE *stream;
-    if (4 != argc)
+    if (3 != argc)
     {
         printf("An Error Has Occurred");
         return 1;
     }
-    k = atoi(argv[1]);
-    goal = argv[2];
-    stream = fopen(argv[3], "r");
+    goal = argv[1];
+    stream = fopen(argv[2], "r");
     *status = 0;
     /* dont let your memes be dreams */
     points = AllocateMatrix(CountPoints(stream), 1, status);
