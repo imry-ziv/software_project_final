@@ -322,13 +322,14 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
     while (1)
     {
         convs = fscanf(stream, "%lf", points + elem);
+        printf("Converted first point elem %d, value %f, location %d", elem, *(points + elem), ftell(stream));
         if (ftell(stream) == firstNewline)
             break;
         ++elem;
     }
     *d = elem;
     printf("Dimension: %d\n", *d);
-    pointIndex = 0;
+    pointIndex = 1;
     while (1)
 	{
 		for (elem = 0; elem < *d; elem++)
@@ -350,6 +351,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
         if (1 == *status)
             break;
         *n = *n + 1;
+        pointIndex++;
         sep = fgetc(stream);
         if (sep == EOF)
             break;
