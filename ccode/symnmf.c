@@ -82,10 +82,8 @@ double *symImpl(int n, int d, double *points, int* status)
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
-    printf("Starting symImpl\n");
     if (0 != *status)
     {
-        printf("FAILED: symIpl 1");
         return NULL;
     }
     for (i = 0; i < n; i++)
@@ -128,8 +126,15 @@ double *ddgImpl(int n, int d, double *points, int* status)
 {
     double *res, *D = symImpl(n, d, points, status);
     if (0 != *status)
+    {
+        printf("Failed ddgImpl\n");
         return NULL;
+    }
     res = ddgFromA(n, D, status);
+    if (0 != *status)
+    {
+        printf("ddgImpl failed in ddgFromA\n");
+    }
     free(D);
     return 0 == *status ? NULL : res;
 }
@@ -404,7 +409,6 @@ int CountPoints(FILE *stream)
         if (c == '.')
             ++res;
     } while (c != EOF);
-    printf("Number of points: %d\n", res); /*-*/
     rewind(stream);
     return res;
 }
@@ -435,9 +439,7 @@ int main(int argc, char **argv)
         goto main_free1;
     if (0 == strcmp(goal, "sym"))
     {
-        printf("Entering Sym\n");
         res = sym(n, d, points);
-        printf("Finished sym with status code %d\n", status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
