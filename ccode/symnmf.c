@@ -306,26 +306,20 @@ double *symnmf(int n, int k, double* w, double *h)
 
 void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 {
-    int convs, pointIndex, elem, firstNewline;
+    int convs, pointIndex, elem;
     char sep;
-    firstNewline = 0;
-    while (1)
-    {
-        sep = fgetc(stream);
-        if (sep == '\n')
-            break;
-        ++firstNewline;
-    }
-    printf("Newline index: %d\n", firstNewline);
-    rewind(stream);
     elem = 0;
     while (1)
     {
         convs = fscanf(stream, "%lf", points + elem);
-        printf("Converted first point elem %d, value %f, location %ld", elem, *(points + elem), ftell(stream));
-        if (ftell(stream) == firstNewline)
-            break;
         ++elem;
+        sep = fgetc(stream);
+        if (sep == ',')
+            continue;
+        if (sep == '\n')
+            break;
+        *status = 1;
+        return; 
     }
     *d = elem;
     printf("Dimension: %d\n", *d);
@@ -334,11 +328,11 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
-			convs = fscanf(stream, "%lf", points + Index(pointIndex, elem, *d));
+			convs = fscanf(stream, "%lf", points + Index(*d, pointIndex, elem));
 			if (1 != convs)
             {
 				*status = 1;
-                break;
+                return;
             }
 			sep = fgetc(stream);
 			if (sep == ',' && elem < *d - 1)
@@ -346,10 +340,8 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 			if (sep == '\n' && elem == *d - 1)
 				continue;
             *status = 1;
-            break;
+            return;
 		}
-        if (1 == *status)
-            break;
         *n = *n + 1;
         pointIndex++;
         sep = fgetc(stream);
