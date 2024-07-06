@@ -326,7 +326,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
-			convs = fscanf(stream, "%lf", points + Index(pointIndex, elem, d));
+			convs = fscanf(stream, "%lf", points + Index(pointIndex, elem, *d));
 			if (1 != convs)
             {
 				*status = 1;
@@ -357,7 +357,7 @@ void PrintPoints(int n, double *points)
 	{
 		for (elem = 0; elem < n; elem++)
 		{
-			printf("%.4lf", points[Index(n, i, elem)]);
+			printf("%.4f", points[Index(n, i, elem)]);
 			if (elem == n - 1)
 				printf("\n");
 			else printf(",");
