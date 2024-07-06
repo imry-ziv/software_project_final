@@ -376,11 +376,12 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
             return;
 		}
 	}
+    /* validate EOF - they say we dont actually need to do this
     sep = fgetc(stream);
     if (sep != EOF)
     {
         *status = 1;
-        printf("Did not reach EOF: instead got %c after %d points.\n", sep, pointIndex);
+        printf("Did not reach EOF: instead got %d after %d points.\n", sep, pointIndex);
         sep = fgetc(stream);
         while (sep != EOF)
         {
@@ -389,6 +390,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
         PRINTERROR;
         return;
     }
+    */
 }
 
 int CountPoints(FILE *stream)
