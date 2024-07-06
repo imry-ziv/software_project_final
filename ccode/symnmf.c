@@ -82,7 +82,7 @@ double *symImpl(int n, int d, double *points, int* status)
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
-    prinft("Starting symImpl\n");
+    printf("Starting symImpl\n");
     if (0 != *status)
     {
         printf("FAILED: symIpl 1");
