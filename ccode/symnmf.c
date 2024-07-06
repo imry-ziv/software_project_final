@@ -316,6 +316,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             break;
         ++firstNewline;
     }
+    printf("Newline index: %d", firstNewline);
     rewind(stream);
     elem = 0;
     while (1)
@@ -325,6 +326,8 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             break;
         ++elem;
     }
+    *d = elem;
+    printf("Dimension: %d", *d);
     pointIndex = 0;
     while (1)
 	{
