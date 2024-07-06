@@ -322,7 +322,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
     while (1)
     {
         convs = fscanf(stream, "%lf", points + elem);
-        printf("Converted first point elem %d, value %f, location %d", elem, *(points + elem), ftell(stream));
+        printf("Converted first point elem %d, value %f, location %ld", elem, *(points + elem), ftell(stream));
         if (ftell(stream) == firstNewline)
             break;
         ++elem;
