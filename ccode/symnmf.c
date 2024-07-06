@@ -83,7 +83,10 @@ double *symImpl(int n, int d, double *points, int* status)
     int i, j;
     double *A = AllocateMatrix(n, n, status);
     if (0 != *status)
+    {
+        printf("FAILED: symIpl 1");
         return NULL;
+    }
     for (i = 0; i < n; i++)
     {
         for (j = 0; j < n; j++)
@@ -342,7 +345,6 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
         return; 
     }
     *d = elem;
-    printf("Dimension: %d\n", *d);
     pointIndex = 1;
     while (1)
 	{
@@ -364,8 +366,6 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             PRINTERROR;
             return;
 		}
-        printf("Parsing point %d:", pointIndex);
-        PrintPoint(*d, *d * pointIndex, points);
         *n = *n + 1;
         pointIndex++;
         sep = fgetc(stream);
