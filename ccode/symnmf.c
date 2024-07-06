@@ -311,12 +311,12 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
     firstNewline = 0;
     while (1)
     {
-        sep = fgetc(stdin);
+        sep = fgetc(stream);
         if (sep == '\n')
             break;
         ++firstNewline;
     }
-    printf("Newline index: %d", firstNewline);
+    printf("Newline index: %d\n", firstNewline);
     rewind(stream);
     elem = 0;
     while (1)
@@ -327,7 +327,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
         ++elem;
     }
     *d = elem;
-    printf("Dimension: %d", *d);
+    printf("Dimension: %d\n", *d);
     pointIndex = 0;
     while (1)
 	{
@@ -383,7 +383,7 @@ int CountPoints(FILE *stream)
         if (c == '.')
             ++res;
     } while (c != EOF);
-    printf("Number of points: %d", res); /*-*/
+    printf("Number of points: %d\n", res); /*-*/
     rewind(stream);
     return res;
 }
