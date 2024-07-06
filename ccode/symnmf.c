@@ -326,7 +326,6 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
     pointIndex = 1;
     while (1)
 	{
-        printf("Parsing point %d", pointIndex);
 		for (elem = 0; elem < *d; elem++)
 		{
 			convs = fscanf(stream, "%lf", points + Index(*d, pointIndex, elem));
@@ -345,6 +344,8 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             PRINTERROR;
             return;
 		}
+        printf("Parsing point %d:", pointIndex);
+        PrintPoint(*d, *d * pointIndex, points);
         *n = *n + 1;
         pointIndex++;
         sep = fgetc(stream);
@@ -354,18 +355,23 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 	}
 }
 
+void PrintPoint(int d, int index, double *points)
+{
+    int elem;
+    printf("%.4f", points[index]);
+    for (elem = 1; elem < d; elem++)
+    {
+        printf(",%.4f", points[index + elem]);
+    }
+    printf("\n");
+}
+
 void PrintPoints(int n, double *points)
 {
-	int i, elem;
+	int i;
 	for (i = 0; i < n; i++)
 	{
-		for (elem = 0; elem < n; elem++)
-		{
-			printf("%.4f", points[Index(n, i, elem)]);
-			if (elem == n - 1)
-				printf("\n");
-			else printf(",");
-		}
+		PrintPoint(n, n * i, points);
 	}
 }
 
