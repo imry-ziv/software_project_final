@@ -82,7 +82,6 @@ double *sym(int n, int d, double *points, int* status)
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
-    printf("Entering sym\n");
     if (0 != *status)
     {
         return NULL;
@@ -100,7 +99,6 @@ double *sym(int n, int d, double *points, int* status)
             }
         }
     }
-    printf("Exiting sym\n");
     return A;
 }
 
