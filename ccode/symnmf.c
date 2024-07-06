@@ -249,10 +249,10 @@ symnmfImpl_free1:
 
 double *sym(int n, int d, double *points)
 {
-    int *status;
+    int status;
     double *res;
-    *status = 0;
-    res = symImpl(n, d, points, status);
+    status = 0;
+    res = symImpl(n, d, points, &status);
     if (0 != status)
     {
         PRINTERROR;
@@ -263,10 +263,10 @@ double *sym(int n, int d, double *points)
 
 double *ddg(int n, int d, double *points)
 {
-    int *status;
+    int status;
     double *res;
-    *status = 0;
-    res = ddgImpl(n, d, points, status);
+    status = 0;
+    res = ddgImpl(n, d, points, &status);
     if (0 != status)
     {
         PRINTERROR;
@@ -277,10 +277,10 @@ double *ddg(int n, int d, double *points)
 
 double *norm(int n, int d, double *points)
 {
-    int *status;
+    int status;
     double *res;
-    *status = 0;
-    res = normImpl(n, d, points, status);
+    status = 0;
+    res = normImpl(n, d, points, &status);
     if (0 != status)
     {
         PRINTERROR;
@@ -291,10 +291,10 @@ double *norm(int n, int d, double *points)
 
 double *symnmf(int n, int k, double* w, double *h)
 {
-    int *status;
+    int status;
     double *res;
-    *status = 0;
-    res = symnmfImpl(n, k, w, h, status);
+    status = 0;
+    res = symnmfImpl(n, k, w, h, &status);
     if (0 != status)
     {
         PRINTERROR;
@@ -386,7 +386,7 @@ int CountPoints(FILE *stream)
 
 int main(int argc, char **argv)
 {
-    int *n, *d, *status; 
+    int n, d, status; 
     char *goal;
     double *points, *res;
     FILE *stream;
@@ -397,35 +397,37 @@ int main(int argc, char **argv)
     }
     goal = argv[1];
     stream = fopen(argv[2], "r");
-    *status = 0;
+    status = 0;
     /* dont let your memes be dreams */
-    points = AllocateMatrix(CountPoints(stream), 1, status);
-    if (0 != *status)
+    points = AllocateMatrix(CountPoints(stream), 1, &status);
+    if (0 != status)
         return 1;
-    ReadPoints(stream, points, d, n, status);
+    n = 0;
+    d = 0;
+    ReadPoints(stream, points, &d, &n, &status);
     fclose(stream);
-    if (0 != *status)
+    if (0 != status)
         goto main_free1;
     if (0 == strcmp(goal, "sym"))
     {
-        res = sym(*n, *d, points);
+        res = sym(n, d, points);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
-        res = ddg(*n, *d, points);
+        res = ddg(n, d, points);
     }
     else if (0 == strcmp(goal, "norm"))
     {
-        res = norm(*n, *d, points);
+        res = norm(n, d, points);
     }
     if (NULL != res)
     {
-        PrintPoints(*n, res);
+        PrintPoints(n, res);
         free(res);
     }
 main_free1:
     free(points);
-    return *status;
+    return status;
 }
 
 #endif
