@@ -381,7 +381,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     if (sep != EOF)
     {
         *status = 1;
-        printf("Did not reach EOF\n");
+        printf("Did not reach EOF: instead got %c.\n", sep);
         PRINTERROR;
         return;
     }
