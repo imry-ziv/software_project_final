@@ -139,7 +139,7 @@ double *ddg(int n, int d, double *points, int* status)
         PRINTERROR;
     }
     free(D);
-    return res; //can be null if we failed along the way
+    return res; /* can be null if we failed along the way */
 }
 
 double *norm(int n, int d, double *points, int* status)
