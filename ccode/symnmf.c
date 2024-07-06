@@ -1,3 +1,6 @@
+#ifndef SYMNMFSource
+#define SYMNMFSource
+
 #include <stdlib.h>
 #include <stdio.h>
 #include <math.h>
@@ -8,6 +11,7 @@
 #define eps 1e-4
 #define maxIteration 300
 #define PRINTERROR printf("%s", "An Error Has Occured")
+
 
 /*
 Implementation convention - matrices are stored as linear arrays.
@@ -423,3 +427,5 @@ main_free1:
     free(points);
     return *status;
 }
+
+#endif
