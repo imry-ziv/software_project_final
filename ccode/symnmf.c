@@ -328,7 +328,7 @@ void PrintPoints(int n, double *points)
 	}
 }
 
-void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
+void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
 {
     int convs, pointIndex, elem;
     char sep;
@@ -346,8 +346,15 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
         return; 
     }
     *d = elem;
+    *n = entryCount / *d;
+    if ((*n) * (*d) != entryCount)
+    {
+        *status = 1;
+        PRINTERROR;
+        return;
+    }
     pointIndex = 1;
-    while (1)
+    for (pointIndex = 1; pointIndex < *n; ++pointIndex)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
@@ -367,13 +374,14 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
             PRINTERROR;
             return;
 		}
-        *n = *n + 1;
-        pointIndex++;
-        sep = fgetc(stream);
-        if (sep == EOF)
-            break;
-        else fseek(stream, -1, SEEK_CUR);
 	}
+    sep = fgetc(stream);
+    if (sep != EOF)
+    {
+        *status = 1;
+        PRINTERROR;
+        return;
+    }
 }
 
 int CountPoints(FILE *stream)
@@ -394,7 +402,7 @@ int CountPoints(FILE *stream)
 
 int main(int argc, char **argv)
 {
-    int n, d, status; 
+    int n, d, status, entryCount; 
     char *goal;
     double *points, *res;
     FILE *stream;
@@ -407,12 +415,12 @@ int main(int argc, char **argv)
     stream = fopen(argv[2], "r");
     status = 0;
     /* dont let your memes be dreams */
-    points = AllocateMatrix(CountPoints(stream), 1, &status);
+    points = AllocateMatrix(entryCount = CountPoints(stream), 1, &status);
     if (0 != status)
         return 1;
     n = 0;
     d = 0;
-    ReadPoints(stream, points, &d, &n, &status);
+    ReadPoints(stream, points, entryCount, &d, &n, &status);
     fclose(stream);
     if (0 != status)
         goto main_free1;
