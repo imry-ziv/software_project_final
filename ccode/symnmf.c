@@ -351,6 +351,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
+        printf("mismatch: %d, %d\n", (*n) * (*d), entryCount);
         PRINTERROR;
         return;
     }
@@ -380,6 +381,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     if (sep != EOF)
     {
         *status = 1;
+        printf("Did not reach EOF\n");
         PRINTERROR;
         return;
     }
