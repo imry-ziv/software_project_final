@@ -190,15 +190,15 @@ since we use temp1 as both [n,k]  and [k,n]
 void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, double *temp1, double *temp2)
 {
     int i,j, index;
-    //Step 1: calculate W*Hcur
-    //we'll store this in Hnext since it's [n,k]
+    /* Step 1: calculate W*Hcur
+    we'll store this in Hnext since it's [n,k] */
     MultiplyMatricesNonAlloc(n, n, k, W, Hcur, Hnext);
-    //Step 2: calculate Hcur^T * Hcur
-    //We'll store H^T in temp1, and the resulting [k,k] matrix in temp2
+    /* Step 2: calculate Hcur^T * Hcur
+    We'll store H^T in temp1, and the resulting [k,k] matrix in temp2 */
     Transpose(n, k, Hcur, temp1);
     MultiplyMatricesNonAlloc(k, n, k, temp1, Hcur, temp2);
-    //Step 3: calculate Hcur * temp2
-    //We'll store the result back into temp1
+    /*Step 3: calculate Hcur * temp2
+    We'll store the result back into temp1 */
     MultiplyMatricesNonAlloc(n, k, k, Hcur, temp2, temp1);
     for (i = 0; i < n; i++)
     {
@@ -326,7 +326,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
-			convs = fscanf(stream, "%lf", points + index1(pointIndex, elem, d));
+			convs = fscanf(stream, "%lf", points + Index(pointIndex, elem, d));
 			if (1 != convs)
             {
 				*status = 1;
@@ -366,7 +366,7 @@ void PrintPoints(int n, double *points)
 }
 
 int CountPoints(FILE *stream)
-{//each point has a decimal point, so we'll count those
+{/* each point has a decimal point, so we'll count those */
     int res;
     char c;
     res = 0;
