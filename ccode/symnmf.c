@@ -380,6 +380,7 @@ int CountPoints(FILE *stream)
         if (c == '.')
             ++res;
     } while (c != EOF);
+    printf("Number of points: %d", res); /*-*/
     rewind(stream);
     return res;
 }
