@@ -9,7 +9,6 @@
 #define maxIteration 300
 #define PRINTERROR printf("%s", "An Error Has Occured")
 
-#pragma region implementations
 /*
 Implementation convention - matrices are stored as linear arrays.
 Therefore points [d,n] will be an d*n array where [0], ..., [d-1] 
@@ -42,8 +41,10 @@ double *AllocateMatrix(int a, int b, int* status)
     return res;
 }
 
-//A[a,b], B[b,c], and dest[a,c]
-//overwrites result into dest
+/*
+A[a,b], B[b,c], and dest[a,c]
+overwrites result into dest
+*/
 void MultiplyMatricesNonAlloc(int a, int b, int c, double *A, double *B, double *dest)
 {
     double sum;
@@ -62,11 +63,9 @@ void MultiplyMatricesNonAlloc(int a, int b, int c, double *A, double *B, double 
     }
 }
 
-//A[a,b] and B[b,c]
+/* A[a,b] and B[b,c] */
 double *MultiplyMatrices(int a, int b, int c, double *A, double *B, int* status)
 {
-    double sum;
-    int i, j, k;
     double *res = AllocateMatrix(a, c, status);
     if (0 != *status)
         return NULL;
@@ -119,7 +118,7 @@ double *ddgFromA(int n, double *A, int* status)
 
 double *ddgImpl(int n, int d, double *points, int* status)
 {
-    double *res, *D = sym(n, d, points, status);
+    double *res, *D = symImpl(n, d, points, status);
     if (0 != *status)
         return NULL;
     res = ddgFromA(n, D, status);
@@ -170,7 +169,7 @@ float F2NormOfDifference(int a, int b, double *A, double *B)
     return sum;
 }
 
-//src[a,b], dest[b,a]
+/* src[a,b], dest[b,a] */
 void Transpose(int a, int b, double *src, double *dest)
 {
     int i, j;
@@ -183,8 +182,9 @@ void Transpose(int a, int b, double *src, double *dest)
     }
 }
 
-//H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k]
-//* since we use temp1 as both [n,k]  and [k,n]
+/* H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k]
+since we use temp1 as both [n,k]  and [k,n]
+*/
 void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, double *temp1, double *temp2)
 {
     int i,j, index;
@@ -238,11 +238,7 @@ symnmfImpl_free1:
     free(Hnext); 
     return Hcur;
 }
-#pragma endregion implementations
 
-#pragma region exports
-
-#pragma endregion exports
 
 double *sym(int n, int d, double *points)
 {
@@ -397,7 +393,7 @@ int main(int argc, char **argv)
     goal = argv[2];
     stream = fopen(argv[3], "r");
     *status = 0;
-    //dont let your memes be dreams
+    /* dont let your memes be dreams */
     points = AllocateMatrix(CountPoints(stream), 1, status);
     if (0 != *status)
         return 1;
@@ -426,4 +422,3 @@ main_free1:
     free(points);
     return *status;
 }
-#pragma endregion main
