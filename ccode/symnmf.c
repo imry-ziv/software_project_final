@@ -129,15 +129,9 @@ double *ddg(int n, int d, double *points, int* status)
     double *res, *D = sym(n, d, points, status);
     if (0 != *status)
     {
-        printf("Failed ddg\n");
         return NULL;
     }
     res = ddgFromA(n, D, status);
-    if (0 != *status)
-    {
-        printf("ddg failed in ddgFromA\n");
-        PRINTERROR;
-    }
     free(D);
     return res; /* can be null if we failed along the way */
 }
@@ -298,7 +292,6 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     }
     *d = elem;
     *n = entryCount / *d;
-    printf("Dimension: %d, number of points: %d", *d, *n);
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
@@ -395,6 +388,10 @@ int main(int argc, char **argv)
     else if (0 == strcmp(goal, "norm"))
     {
         res = norm(n, d, points, &status);
+    }
+    if (0 != status || NULL == res)
+    {
+        PRINTERROR;
     }
     if (NULL != res)
     {
