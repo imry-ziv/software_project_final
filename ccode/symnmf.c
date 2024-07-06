@@ -77,11 +77,12 @@ double *MultiplyMatrices(int a, int b, int c, double *A, double *B, int* status)
     return res;
 }
 
-double *symImpl(int n, int d, double *points, int* status)
+double *sym(int n, int d, double *points, int* status)
 {
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
+    printf("Entering sym\n");
     if (0 != *status)
     {
         return NULL;
@@ -99,6 +100,7 @@ double *symImpl(int n, int d, double *points, int* status)
             }
         }
     }
+    printf("Exiting sym\n");
     return A;
 }
 
@@ -122,49 +124,49 @@ double *ddgFromA(int n, double *A, int* status)
     return D;
 }
 
-double *ddgImpl(int n, int d, double *points, int* status)
+double *ddg(int n, int d, double *points, int* status)
 {
-    double *res, *D = symImpl(n, d, points, status);
+    double *res, *D = sym(n, d, points, status);
     if (0 != *status)
     {
-        printf("Failed ddgImpl\n");
+        printf("Failed ddg\n");
         return NULL;
     }
     res = ddgFromA(n, D, status);
     if (0 != *status)
     {
-        printf("ddgImpl failed in ddgFromA\n");
+        printf("ddg failed in ddgFromA\n");
         PRINTERROR;
     }
     free(D);
     return 0 == *status ? NULL : res;
 }
 
-double *normImpl(int n, int d, double *points, int* status)
+double *norm(int n, int d, double *points, int* status)
 {
     int i;
     double *A, *D, *temp;
-    A = symImpl(n, d, points, status);
+    A = sym(n, d, points, status);
     if (0 != *status)
         return NULL;
     D = ddgFromA(n, A, status);
     if (0 != *status)
-        goto normImpl_free1;
+        goto norm_free1;
     for (i = 0; i < n; i++)
     {
         D[Index(n,i,i)] = 1.0/sqrt(D[Index(n,i,i)]);
     }
     temp = MultiplyMatrices(n, n, n, D, A, status);
     if (0 != *status)
-        goto normImpl_free2;
+        goto norm_free2;
     /*
     A is overwritten here since it's no longer in use
     It now stores the result of the calculation.
     */
     MultiplyMatricesNonAlloc(n, n, n, temp, D, A);
-normImpl_free2:
+norm_free2:
     free(temp); 
-normImpl_free1:
+norm_free1:
     free(D);
     return A;
 }
@@ -224,20 +226,20 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
     }
 }
 
-double *symnmfImpl(int n, int k, double* W, double *H, int* status)
+double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double *Hcur, *Hnext, *temp1, *temp2, *swap;
     int i;
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
-        goto symnmfImpl_free1;
+        goto symnmf_free1;
     temp1 = AllocateMatrix(n, k, status);
     if (0 != *status)
-        goto symnmfImpl_free2;
+        goto symnmf_free2;
     temp2 = AllocateMatrix(k, k, status);
     if (0 != *status)
-        goto symnmfImpl_free3;
+        goto symnmf_free3;
     for (i = 0; i < maxIteration; i++)
     {
         ConvergenceStep(n, k, W, Hcur, Hnext, temp1, temp2);
@@ -247,71 +249,13 @@ double *symnmfImpl(int n, int k, double* W, double *H, int* status)
         if (F2NormOfDifference(n, k, Hcur, Hnext) < eps)
             break;
     }
-symnmfImpl_free3:
+symnmf_free3:
     free(temp2); 
-symnmfImpl_free2:
+symnmf_free2:
     free(temp1); 
-symnmfImpl_free1:
+symnmf_free1:
     free(Hnext); 
     return Hcur;
-}
-
-
-double *sym(int n, int d, double *points)
-{
-    int status;
-    double *res;
-    status = 0;
-    res = symImpl(n, d, points, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
-}
-
-double *ddg(int n, int d, double *points)
-{
-    int status;
-    double *res;
-    status = 0;
-    printf("Entering ddgImpl\n");
-    res = ddgImpl(n, d, points, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
-}
-
-double *norm(int n, int d, double *points)
-{
-    int status;
-    double *res;
-    status = 0;
-    res = normImpl(n, d, points, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
-}
-
-double *symnmf(int n, int k, double* w, double *h)
-{
-    int status;
-    double *res;
-    status = 0;
-    res = symnmfImpl(n, k, w, h, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
 }
 
 
@@ -441,16 +385,16 @@ int main(int argc, char **argv)
         goto main_free1;
     if (0 == strcmp(goal, "sym"))
     {
-        res = sym(n, d, points);
+        res = sym(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
         printf("Enterind ddg\n");
-        res = ddg(n, d, points);
+        res = ddg(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "norm"))
     {
-        res = norm(n, d, points);
+        res = norm(n, d, points, &status);
     }
     if (NULL != res)
     {
