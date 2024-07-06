@@ -134,6 +134,7 @@ double *ddgImpl(int n, int d, double *points, int* status)
     if (0 != *status)
     {
         printf("ddgImpl failed in ddgFromA\n");
+        PRINTERROR;
     }
     free(D);
     return 0 == *status ? NULL : res;
@@ -275,6 +276,7 @@ double *ddg(int n, int d, double *points)
     int status;
     double *res;
     status = 0;
+    printf("Entering ddgImpl\n");
     res = ddgImpl(n, d, points, &status);
     if (0 != status)
     {
@@ -443,6 +445,7 @@ int main(int argc, char **argv)
     }
     else if (0 == strcmp(goal, "ddg"))
     {
+        printf("Enterind ddg\n");
         res = ddg(n, d, points);
     }
     else if (0 == strcmp(goal, "norm"))
