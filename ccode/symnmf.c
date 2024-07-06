@@ -347,6 +347,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     }
     *d = elem;
     *n = entryCount / *d;
+    printf("Dimension: %d, number of points: %d", *d, *n);
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
