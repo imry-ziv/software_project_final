@@ -10,7 +10,7 @@
 #define beta 0.5
 #define eps 1e-4
 #define maxIteration 300
-#define PRINTERROR printf("%s", "An Error Has Occured")
+#define PRINTERROR printf("An Error Has Occured")
 
 
 /*
@@ -326,12 +326,14 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
     pointIndex = 1;
     while (1)
 	{
+        printf("Parsing point %d", pointIndex);
 		for (elem = 0; elem < *d; elem++)
 		{
 			convs = fscanf(stream, "%lf", points + Index(*d, pointIndex, elem));
 			if (1 != convs)
             {
 				*status = 1;
+                PRINTERROR;
                 return;
             }
 			sep = fgetc(stream);
@@ -340,6 +342,7 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 			if (sep == '\n' && elem == *d - 1)
 				continue;
             *status = 1;
+            PRINTERROR;
             return;
 		}
         *n = *n + 1;
@@ -390,7 +393,7 @@ int main(int argc, char **argv)
     FILE *stream;
     if (3 != argc)
     {
-        printf("An Error Has Occurred");
+        PRINTERROR;
         return 1;
     }
     goal = argv[1];
