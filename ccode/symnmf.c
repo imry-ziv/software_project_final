@@ -10,7 +10,7 @@
 #define beta 0.5
 #define eps 1e-4
 #define maxIteration 300
-#define PRINTERROR printf("An Error Has Occured")
+#define PRINTERROR printf("An Error Has Occured\n")
 
 
 /*
@@ -82,6 +82,7 @@ double *symImpl(int n, int d, double *points, int* status)
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
+    prinft("Starting symImpl\n");
     if (0 != *status)
     {
         printf("FAILED: symIpl 1");
@@ -417,7 +418,9 @@ int main(int argc, char **argv)
         goto main_free1;
     if (0 == strcmp(goal, "sym"))
     {
+        printf("Entering Sym\n");
         res = sym(n, d, points);
+        printf("Finished sym with status code %d\n", status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
