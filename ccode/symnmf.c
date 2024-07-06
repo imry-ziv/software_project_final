@@ -304,6 +304,26 @@ double *symnmf(int n, int k, double* w, double *h)
 }
 
 
+void PrintPoint(int d, int index, double *points)
+{
+    int elem;
+    printf("%.4f", points[index]);
+    for (elem = 1; elem < d; elem++)
+    {
+        printf(",%.4f", points[index + elem]);
+    }
+    printf("\n");
+}
+
+void PrintPoints(int n, double *points)
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		PrintPoint(n, n * i, points);
+	}
+}
+
 void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 {
     int convs, pointIndex, elem;
@@ -352,26 +372,6 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
         if (sep == EOF)
             break;
         else fseek(stream, -1, SEEK_CUR);
-	}
-}
-
-void PrintPoint(int d, int index, double *points)
-{
-    int elem;
-    printf("%.4f", points[index]);
-    for (elem = 1; elem < d; elem++)
-    {
-        printf(",%.4f", points[index + elem]);
-    }
-    printf("\n");
-}
-
-void PrintPoints(int n, double *points)
-{
-	int i;
-	for (i = 0; i < n; i++)
-	{
-		PrintPoint(n, n * i, points);
 	}
 }
 
