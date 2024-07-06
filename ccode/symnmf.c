@@ -381,6 +381,10 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     {
         *status = 1;
         printf("Did not reach EOF: instead got %c after %d points.\n", sep, pointIndex);
+        do
+        {
+            printf("%c\n", sep = fgetc(stream));
+        } while (sep != EOF);        
         PRINTERROR;
         return;
     }
