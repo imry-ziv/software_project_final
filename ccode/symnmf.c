@@ -10,7 +10,7 @@
 #define beta 0.5
 #define eps 1e-4
 #define maxIteration 300
-#define PRINTERROR printf("%s", "An Error Has Occured")
+#define PRINTERROR printf("An Error Has Occured\n")
 
 
 /*
@@ -77,13 +77,15 @@ double *MultiplyMatrices(int a, int b, int c, double *A, double *B, int* status)
     return res;
 }
 
-double *symImpl(int n, int d, double *points, int* status)
+double *sym(int n, int d, double *points, int* status)
 {
     double dist;
     int i, j;
     double *A = AllocateMatrix(n, n, status);
     if (0 != *status)
+    {
         return NULL;
+    }
     for (i = 0; i < n; i++)
     {
         for (j = 0; j < n; j++)
@@ -120,41 +122,43 @@ double *ddgFromA(int n, double *A, int* status)
     return D;
 }
 
-double *ddgImpl(int n, int d, double *points, int* status)
+double *ddg(int n, int d, double *points, int* status)
 {
-    double *res, *D = symImpl(n, d, points, status);
+    double *res, *D = sym(n, d, points, status);
     if (0 != *status)
+    {
         return NULL;
+    }
     res = ddgFromA(n, D, status);
     free(D);
-    return 0 == *status ? NULL : res;
+    return res; /* can be null if we failed along the way */
 }
 
-double *normImpl(int n, int d, double *points, int* status)
+double *norm(int n, int d, double *points, int* status)
 {
     int i;
     double *A, *D, *temp;
-    A = symImpl(n, d, points, status);
+    A = sym(n, d, points, status);
     if (0 != *status)
         return NULL;
     D = ddgFromA(n, A, status);
     if (0 != *status)
-        goto normImpl_free1;
+        goto norm_free1;
     for (i = 0; i < n; i++)
     {
         D[Index(n,i,i)] = 1.0/sqrt(D[Index(n,i,i)]);
     }
     temp = MultiplyMatrices(n, n, n, D, A, status);
     if (0 != *status)
-        goto normImpl_free2;
+        goto norm_free2;
     /*
     A is overwritten here since it's no longer in use
     It now stores the result of the calculation.
     */
     MultiplyMatricesNonAlloc(n, n, n, temp, D, A);
-normImpl_free2:
+norm_free2:
     free(temp); 
-normImpl_free1:
+norm_free1:
     free(D);
     return A;
 }
@@ -214,20 +218,20 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
     }
 }
 
-double *symnmfImpl(int n, int k, double* W, double *H, int* status)
+double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double *Hcur, *Hnext, *temp1, *temp2, *swap;
     int i;
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
-        goto symnmfImpl_free1;
+        goto symnmf_free1;
     temp1 = AllocateMatrix(n, k, status);
     if (0 != *status)
-        goto symnmfImpl_free2;
+        goto symnmf_free2;
     temp2 = AllocateMatrix(k, k, status);
     if (0 != *status)
-        goto symnmfImpl_free3;
+        goto symnmf_free3;
     for (i = 0; i < maxIteration; i++)
     {
         ConvergenceStep(n, k, W, Hcur, Hnext, temp1, temp2);
@@ -237,104 +241,72 @@ double *symnmfImpl(int n, int k, double* W, double *H, int* status)
         if (F2NormOfDifference(n, k, Hcur, Hnext) < eps)
             break;
     }
-symnmfImpl_free3:
+symnmf_free3:
     free(temp2); 
-symnmfImpl_free2:
+symnmf_free2:
     free(temp1); 
-symnmfImpl_free1:
+symnmf_free1:
     free(Hnext); 
     return Hcur;
 }
 
 
-double *sym(int n, int d, double *points)
+void PrintPoint(int d, int index, double *points)
 {
-    int status;
-    double *res;
-    status = 0;
-    res = symImpl(n, d, points, &status);
-    if (0 != status)
+    int elem;
+    printf("%.4f", points[index]);
+    for (elem = 1; elem < d; elem++)
     {
-        PRINTERROR;
-        return NULL;
+        printf(",%.4f", points[index + elem]);
     }
-    return res;
+    printf("\n");
 }
 
-double *ddg(int n, int d, double *points)
+void PrintPoints(int n, double *points)
 {
-    int status;
-    double *res;
-    status = 0;
-    res = ddgImpl(n, d, points, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		PrintPoint(n, n * i, points);
+	}
 }
 
-double *norm(int n, int d, double *points)
+void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
 {
-    int status;
-    double *res;
-    status = 0;
-    res = normImpl(n, d, points, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
-}
-
-double *symnmf(int n, int k, double* w, double *h)
-{
-    int status;
-    double *res;
-    status = 0;
-    res = symnmfImpl(n, k, w, h, &status);
-    if (0 != status)
-    {
-        PRINTERROR;
-        return NULL;
-    }
-    return res;
-}
-
-
-void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
-{
-    int convs, pointIndex, elem, firstNewline;
+    int convs, pointIndex, elem;
     char sep;
-    firstNewline = 0;
-    while (1)
-    {
-        sep = fgetc(stdin);
-        if (sep == '\n')
-            break;
-        ++firstNewline;
-    }
-    rewind(stream);
     elem = 0;
     while (1)
     {
         convs = fscanf(stream, "%lf", points + elem);
-        if (ftell(stream) == firstNewline)
-            break;
         ++elem;
+        sep = fgetc(stream);
+        if (sep == ',')
+            continue;
+        if (sep == '\n')
+            break;
+        *status = 1;
+        return; 
     }
-    pointIndex = 0;
-    while (1)
+    *d = elem;
+    *n = entryCount / *d;
+    if ((*n) * (*d) != entryCount)
+    {
+        *status = 1;
+        PRINTERROR;
+        return;
+    }
+    pointIndex = 1;
+    for (pointIndex = 1; pointIndex < *n; ++pointIndex)
 	{
 		for (elem = 0; elem < *d; elem++)
 		{
-			convs = fscanf(stream, "%lf", points + Index(pointIndex, elem, *d));
+			convs = fscanf(stream, "%lf", points + Index(*d, pointIndex, elem));
 			if (1 != convs)
             {
 				*status = 1;
-                break;
+                PRINTERROR;
+                return;
             }
 			sep = fgetc(stream);
 			if (sep == ',' && elem < *d - 1)
@@ -342,31 +314,25 @@ void ReadPoints(FILE *stream, double *points, int *d, int *n, int* status)
 			if (sep == '\n' && elem == *d - 1)
 				continue;
             *status = 1;
-            break;
+            PRINTERROR;
+            return;
 		}
-        if (1 == *status)
-            break;
-        *n = *n + 1;
+	}
+    /* validate EOF - they say we dont actually need to do this
+    sep = fgetc(stream);
+    if (sep != EOF)
+    {
+        *status = 1;
+        printf("Did not reach EOF: instead got %d after %d points.\n", sep, pointIndex);
         sep = fgetc(stream);
-        if (sep == EOF)
-            break;
-        else fseek(stream, -1, SEEK_CUR);
-	}
-}
-
-void PrintPoints(int n, double *points)
-{
-	int i, elem;
-	for (i = 0; i < n; i++)
-	{
-		for (elem = 0; elem < n; elem++)
-		{
-			printf("%.4f", points[Index(n, i, elem)]);
-			if (elem == n - 1)
-				printf("\n");
-			else printf(",");
-		}
-	}
+        while (sep != EOF)
+        {
+            printf("%c\n", sep = fgetc(stream));
+        } 
+        PRINTERROR;
+        return;
+    }
+    */
 }
 
 int CountPoints(FILE *stream)
@@ -386,39 +352,44 @@ int CountPoints(FILE *stream)
 
 int main(int argc, char **argv)
 {
-    int n, d, status; 
+    int n, d, status, entryCount; 
     char *goal;
     double *points, *res;
     FILE *stream;
     if (3 != argc)
     {
-        printf("An Error Has Occurred");
+        PRINTERROR;
         return 1;
     }
     goal = argv[1];
     stream = fopen(argv[2], "r");
     status = 0;
     /* dont let your memes be dreams */
-    points = AllocateMatrix(CountPoints(stream), 1, &status);
+    points = AllocateMatrix(entryCount = CountPoints(stream), 1, &status);
     if (0 != status)
         return 1;
     n = 0;
     d = 0;
-    ReadPoints(stream, points, &d, &n, &status);
+    ReadPoints(stream, points, entryCount, &d, &n, &status);
     fclose(stream);
     if (0 != status)
         goto main_free1;
     if (0 == strcmp(goal, "sym"))
     {
-        res = sym(n, d, points);
+        res = sym(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
-        res = ddg(n, d, points);
+        printf("Enterind ddg\n");
+        res = ddg(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "norm"))
     {
-        res = norm(n, d, points);
+        res = norm(n, d, points, &status);
+    }
+    if (0 != status || NULL == res)
+    {
+        PRINTERROR;
     }
     if (NULL != res)
     {
