@@ -5,9 +5,7 @@
 #include <math.h>
 #include "symnmf.h"
 
-#ifndef SYMNMFModule
-#define SYMNMFModule
-
+/*
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
@@ -61,11 +59,11 @@ error:
 	free(ret);
 	return NULL;
 }
-/*
-n - number of points
-d - dimension of each point
-unpacks input into points 
-*/
+
+//n - number of points
+//d - dimension of each point
+//unpacks input into points 
+
 void ParseInput(int n, int d, double *points, PyObject *input)
 {
     int i, j;
@@ -168,7 +166,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
 {
     int n, k, status;
     double *w, *h, *res;
-    PyObject *object1, object2;
+    PyObject *object1, *object2;
     if (!PyArg_ParseTuple(args, "iiOO", &n, &k, &object1, &object2))
 	{
 		return NULL; 
@@ -229,6 +227,32 @@ static PyMethodDef methods[] = {
 		NULL, NULL, 0, NULL
 	}
 };
+*/
+PyObject* test(PyObject* self, PyObject* args)
+{
+	int n, d, status;
+    double *points, *res;
+    PyObject *object;
+    if (!PyArg_ParseTuple(args, "iiO", &n, &d, &object))
+	{
+		return NULL; 
+	}
+	return object;
+}
+
+
+static PyMethodDef methods[] = 
+{
+	{
+		"test",
+		(PyCFunction)test,
+		METH_VARARGS,
+		PyDoc_STR("Creates the symmetric A matrix.")
+	}, 
+	{
+		NULL, NULL, 0, NULL
+	}
+};
 
 static struct PyModuleDef moduleDef =
 {
@@ -243,5 +267,3 @@ PyMODINIT_FUNC PyInit_symnmf_c_api(void)
 	}
 	return m;
 }
-
-#endif
