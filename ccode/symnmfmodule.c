@@ -229,4 +229,18 @@ static PyMethodDef methods[] = {
 	}
 };
 
+static struct PyModuleDef moduleDef =
+{
+	PyModuleDef_HEAD_INIT, "symnmf_c_api", NULL, -1, methods
+};
+
+PyMODINIT_FUNC PyInit_symnmf_c_api(void)
+{
+	PyObject* m = PyModule_Create(&moduleDef);
+	if (!m) {
+		return NULL;
+	}
+	return m;
+}
+
 #endif
