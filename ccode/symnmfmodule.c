@@ -68,7 +68,7 @@ unpacks input into points
 */
 void ParseInput(int n, int d, double *points, PyObject *input)
 {
-    int i;
+    int i, j;
     PyObject *temp;
     for (i = 0; i < n; i++)
 	{
