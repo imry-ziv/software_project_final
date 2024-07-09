@@ -195,7 +195,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     {
         object1 = CreateReturnValue(res, n, n);
         free(res);
-        return object;
+        return object1;
     }
 }
 
