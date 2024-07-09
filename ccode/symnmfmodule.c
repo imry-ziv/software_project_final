@@ -5,7 +5,6 @@
 #include <math.h>
 #include "symnmf.h"
 
-/*
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
@@ -222,32 +221,6 @@ static PyMethodDef methods[] = {
 		(PyCFunction)SymNMFWrapper,
 		METH_VARARGS,
 		PyDoc_STR("Provided with the w norm matrix and an initialized h-matrix, converges into the h-classifier matrix.")
-	}, 
-	{
-		NULL, NULL, 0, NULL
-	}
-};
-*/
-PyObject* test(PyObject* self, PyObject* args)
-{
-	int n, d, status;
-    double *points, *res;
-    PyObject *object;
-    if (!PyArg_ParseTuple(args, "iiO", &n, &d, &object))
-	{
-		return NULL; 
-	}
-	return object;
-}
-
-
-static PyMethodDef methods[] = 
-{
-	{
-		"test",
-		(PyCFunction)test,
-		METH_VARARGS,
-		PyDoc_STR("Creates the symmetric A matrix.")
 	}, 
 	{
 		NULL, NULL, 0, NULL
