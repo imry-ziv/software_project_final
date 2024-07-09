@@ -186,7 +186,8 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     ParseInput(n, k, h, object2);
     status = 0;
     res = symnmf(n, k, w, h, &status);
-    free(points);
+    free(h);
+	free(w);
     if (0 != status)
     {
         return NULL;
