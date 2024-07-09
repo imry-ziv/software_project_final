@@ -199,4 +199,34 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     }
 }
 
+static PyMethodDef methods[] = {
+	{
+		"sym",
+		(PyCFunction)SymWrapper,
+		METH_VARARGS,
+		PyDoc_STR("Creates the symmetric A matrix.")
+	}, 
+    {
+		"ddg",
+		(PyCFunction)DDGWrapper,
+		METH_VARARGS,
+		PyDoc_STR("Creates the diagonal D matrix.")
+	}, 
+    {
+		"norm",
+		(PyCFunction)NormWrapper,
+		METH_VARARGS,
+		PyDoc_STR("Creates the normalized w matrix.")
+	}, 
+    {
+		"symnmf",
+		(PyCFunction)SymNMFWrapper,
+		METH_VARARGS,
+		PyDoc_STR("Provided with the w norm matrix and an initialized h-matrix, converges into the h-classifier matrix.")
+	}, 
+	{
+		NULL, NULL, 0, NULL
+	}
+};
+
 #endif
