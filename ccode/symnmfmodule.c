@@ -10,11 +10,6 @@ static int index1(int pointIndex, int elementIndex, int d)
 	return d * pointIndex + elementIndex;
 }
 
-static int index2(int pointIndex, int d)
-{
-	return d * pointIndex;
-}
-
 PyObject* CreateReturnValue(double* points, int n, int d)
 {
 	int i, elem, len, len2, j;
