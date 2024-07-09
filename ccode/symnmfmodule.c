@@ -18,13 +18,13 @@ static int index2(int pointIndex, int d)
 	return d * pointIndex;
 }
 
-PyObject* createReturnValue(double* points, int k, int d)
+PyObject* CreateReturnValue(double* points, int n, int d)
 {
 	int i, elem, len, len2, j;
 	PyObject *temp, *point, *ret = PyList_New(0);
 	if (NULL == ret)
 		return NULL;
-	for (i = 0; i < k; i++)
+	for (i = 0; i < n; i++)
 	{
 		temp = PyList_New(0);
 		if (NULL == temp)
@@ -82,22 +82,121 @@ void ParseInput(int n, int d, double *points, PyObject *input)
 
 PyObject *SymWrapper(PyObject* self, PyObject* args)
 {
-    
+    int n, d, status;
+    double *points, *res;
+    PyObject *object;
+    if (!PyArg_ParseTuple(args, "iiO", &n, &d, &object))
+	{
+		return NULL; 
+	}
+    points = calloc(n * d, sizeof(double));
+	if (NULL == points)
+		return NULL;
+    ParseInput(n, d, points, object);
+    status = 0;
+    res = sym(n, d, points, &status);
+    free(points);
+    if (0 != status)
+    {
+        return NULL;
+    }
+    else 
+    {
+        object = CreateReturnValue(res, n, n);
+        free(res);
+        return object;
+    }
 }
 
 PyObject *DDGWrapper(PyObject* self, PyObject* args)
 {
-    
+    int n, d, status;
+    double *points, *res;
+    PyObject *object;
+    if (!PyArg_ParseTuple(args, "iiO", &n, &d, &object))
+	{
+		return NULL; 
+	}
+    points = calloc(n * d, sizeof(double));
+	if (NULL == points)
+		return NULL;
+    ParseInput(n, d, points, object);
+    status = 0;
+    res = ddg(n, d, points, &status);
+    free(points);
+    if (0 != status)
+    {
+        return NULL;
+    }
+    else 
+    {
+        object = CreateReturnValue(res, n, n);
+        free(res);
+        return object;
+    }
 }
 
 PyObject *NormWrapper(PyObject* self, PyObject* args)
 {
-    
+    int n, d, status;
+    double *points, *res;
+    PyObject *object;
+    if (!PyArg_ParseTuple(args, "iiO", &n, &d, &object))
+	{
+		return NULL; 
+	}
+    points = calloc(n * d, sizeof(double));
+	if (NULL == points)
+		return NULL;
+    ParseInput(n, d, points, object);
+    status = 0;
+    res = norm(n, d, points, &status);
+    free(points);
+    if (0 != status)
+    {
+        return NULL;
+    }
+    else 
+    {
+        object = CreateReturnValue(res, n, n);
+        free(res);
+        return object;
+    }
 }
 
 PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
 {
-    
+    int n, k, status;
+    double *w, *h, *res;
+    PyObject *object1, object2;
+    if (!PyArg_ParseTuple(args, "iiOO", &n, &k, &object1, &object2))
+	{
+		return NULL; 
+	}
+    w = calloc(n * n, sizeof(double));
+	if (NULL == w)
+		return NULL;
+    h = calloc(n * k, sizeof(double));
+	if (NULL == h)
+    {
+        free(w);
+		return NULL;
+    }
+    ParseInput(n, n, w, object1);
+    ParseInput(n, k, h, object2);
+    status = 0;
+    res = symnmf(n, k, w, h, &status);
+    free(points);
+    if (0 != status)
+    {
+        return NULL;
+    }
+    else 
+    {
+        object1 = CreateReturnValue(res, n, n);
+        free(res);
+        return object;
+    }
 }
 
 #endif

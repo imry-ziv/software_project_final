@@ -24,7 +24,7 @@
 - input dimensions:
 	- points: always n*d
 	- w: n*n
-	- h: n*n	
+	- h: n*k
 - output dimensions:
 	- sym, ddg, norm: n*n
 	- symnmf: n*k (n lists of length k, interpreted as n rows and k columns)
