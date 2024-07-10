@@ -23,7 +23,7 @@ PyObject* CreateReturnValue(double* points, int n, int d)
 			goto error;
 		for (elem = 0; elem < d; elem++)
 		{
-			point = Py_BuildValue("lf", points[index1(i, elem, d)]);
+			point = Py_BuildValue("d", points[index1(i, elem, d)]);
 			if (NULL == point)
 			{
 				for (j = 0; j < elem; j++)
