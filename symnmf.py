@@ -45,6 +45,7 @@ def show_matrix(
         matrix: List[List[float]]
 ) -> None:
     for row in matrix:
+        row = [round(num, 4) for num in row]
         print(','.join(map(str, row)))
 
 def initialize_H_matrix(
@@ -80,12 +81,14 @@ def compute_symnmf(
 
     m = average_value_over_matrix(W)
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
-    return sym.symnmf(
+    x = sym.symnmf(
         n,
         k,
         W,
         initial_H,
     ) # Returns best H
+    print("Back from C")
+    return x
 
 def derive_clustering_solution_symnmf(
         data_matrix: List[List[float]],
@@ -110,6 +113,8 @@ def derive_clustering_solution_symnmf(
 
 
 if __name__ == '__main__': # We currently assume inputs are valid.
+    """
+    
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -131,7 +136,10 @@ if __name__ == '__main__': # We currently assume inputs are valid.
     k = args.k
     goal = args.goal
     file_name = args.file_name
-
+    """
+    k = 3
+    goal = "symnmf"
+    file_name = "test_input_1.txt"
 
     data_matrix = get_points_from_file(file_name)
     n = len(data_matrix)
