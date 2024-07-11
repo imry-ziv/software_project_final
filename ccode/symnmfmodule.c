@@ -28,7 +28,7 @@ PyObject* CreateReturnValue(double* points, int n, int d)
 			{
 				for (j = 0; j < elem; j++)
 				{
-					free(PyList_GetItem(temp, j));
+					Py_DECREF(PyList_GetItem(temp, j));
 				}
 				goto error;
 			}
@@ -46,11 +46,12 @@ error:
 		len2 = PyList_Size(point);
 		for (j = 0; j < len2; j++)
 		{
-			free(PyList_GetItem(point, j));
+			Py_DECREF(PyList_GetItem(point, j));
 		}
-		free(point);
+		Py_DECREF(point);
 	}
-	free(ret);
+	Py_DECREF(ret);
+	Py_DECREF(temp);
 	return NULL;
 }
 
@@ -163,7 +164,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     PyObject *object1, *object2;
     if (!PyArg_ParseTuple(args, "iiOO", &n, &k, &object1, &object2))
 	{
-		return NULL; 
+		return NULL;
 	}
     w = calloc(n * n, sizeof(double));
 	if (NULL == w)
@@ -184,10 +185,12 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     {
         return NULL;
     }
-    else 
+    else
     {
         object1 = CreateReturnValue(res, n, n);
-        free(res);
+        if (res != NULL) {
+           free(res);
+        }
         return object1;
     }
 }
