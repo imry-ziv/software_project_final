@@ -354,7 +354,7 @@ int main(int argc, char **argv)
 {
     int n, d, status, entryCount; 
     char *goal;
-    double *points, *res;
+    double *points, *res = NULL;
     FILE *stream;
     if (3 != argc)
     {
@@ -386,6 +386,10 @@ int main(int argc, char **argv)
     else if (0 == strcmp(goal, "norm"))
     {
         res = norm(n, d, points, &status);
+    }
+    else 
+    {
+        PRINTERROR;
     }
     if (0 != status || NULL == res)
     {
