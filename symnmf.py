@@ -151,6 +151,6 @@ if __name__ == '__main__': # We currently assume inputs are valid.
             data_matrix,
         )
     else: # goal == 'norm' - inputs considered valid
-        required_matrix = sym.norm(data_matrix)
+        required_matrix = sym.norm(n, d, data_matrix)
 
     show_matrix(required_matrix)
