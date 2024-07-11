@@ -143,7 +143,7 @@ if __name__ == '__main__': # We currently assume inputs are valid.
     if goal == 'symnmf':
         required_matrix = compute_symnmf(n, k, d, data_matrix)
     elif goal == 'sym':
-        required_matrix = sym.sym(data_matrix)
+        required_matrix = sym.sym(n, d, data_matrix)
     elif goal == 'ddg':
         required_matrix = sym.ddg(
             n,
