@@ -1,9 +1,9 @@
 import argparse
 import numpy as np
 from typing import List
-# import symnmf # Commented out until implementation of C interface.
+import symnmf_c_api as sym
 
-# Set random seet for reproducibility
+# Set random seed for reproducibility
 np.random.seed(0)
 
 
@@ -11,18 +11,18 @@ np.random.seed(0)
 ####################################################################
 # TEMPORARY: function signatures to fill in for symnmf.c functions #
 ####################################################################
-
-def symnmf(args):
-    return []
-
-def sym(args):
-    return []
-
-def ddg(args):
-    return []
-
-def norm(args):
-    return []
+#
+# def symnmf(args):
+#     return []
+#
+# def sym(args):
+#     return []
+#
+# def ddg(args):
+#     return []
+#
+# def norm(args):
+#     return []
 
 
 # Helper functions.
@@ -68,12 +68,24 @@ def average_value_over_matrix(
 def compute_symnmf(
         n:int,
         k:int,
+        d:int,
         data_matrix: List[List[float]],
 ) -> List[List[float]]:
-    W = norm(data_matrix)
+
+    W = sym.norm(
+        n,
+        d,
+        data_matrix,
+    )
+
     m = average_value_over_matrix(W)
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
-    return symnmf(n, k, W, initial_H) # Returns best H
+    return sym.symnmf(
+        n,
+        k,
+        W,
+        initial_H,
+    ) # Returns best H
 
 def derive_clustering_solution_symnmf(
         data_matrix: List[List[float]],
@@ -97,7 +109,7 @@ def derive_clustering_solution_symnmf(
 
 
 
-if __name__ == ('__main__'): # We currently assume inputs are valid.
+if __name__ == '__main__': # We currently assume inputs are valid.
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -123,15 +135,22 @@ if __name__ == ('__main__'): # We currently assume inputs are valid.
 
     data_matrix = get_points_from_file(file_name)
     n = len(data_matrix)
-
+    try:
+        d = len(data_matrix[0]) # We assume that all points have the same d.
+    except:
+        print('tbd')
 
     if goal == 'symnmf':
-        required_matrix = compute_symnmf(n, k, data_matrix)
+        required_matrix = compute_symnmf(n, k, d, data_matrix)
     elif goal == 'sym':
-        required_matrix = sym(data_matrix)
+        required_matrix = sym.sym(data_matrix)
     elif goal == 'ddg':
-        required_matrix = ddg(data_matrix)
+        required_matrix = sym.ddg(
+            n,
+            d,
+            data_matrix,
+        )
     else: # goal == 'norm' - inputs considered valid
-        required_matrix = norm(data_matrix)
+        required_matrix = sym.norm(data_matrix)
 
     show_matrix(required_matrix)
