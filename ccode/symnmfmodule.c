@@ -5,14 +5,6 @@
 #include <math.h>
 #include "symnmf.h"
 
-#define DEBUG
-
-#ifdef DEBUG 
-#define debug(x) printf("%s\n", x)
-#else 
-#define debug(x) ;
-#endif
-
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
@@ -36,7 +28,7 @@ PyObject* CreateReturnValue(double* points, int n, int d)
 			{
 				for (j = 0; j < elem; j++)
 				{
-					Py_DECREF(PyList_GetItem(temp, j));
+					free(PyList_GetItem(temp, j));
 				}
 				goto error;
 			}
@@ -54,12 +46,11 @@ error:
 		len2 = PyList_Size(point);
 		for (j = 0; j < len2; j++)
 		{
-			Py_DECREF(PyList_GetItem(point, j));
+			free(PyList_GetItem(point, j));
 		}
-		Py_DECREF(point);
+		free(point);
 	}
-	Py_DECREF(ret);
-	Py_DECREF(temp);
+	free(ret);
 	return NULL;
 }
 
@@ -170,10 +161,9 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     int n, k, status;
     double *w, *h, *res;
     PyObject *object1, *object2;
-	debug("In symnmf wrapper");
     if (!PyArg_ParseTuple(args, "iiOO", &n, &k, &object1, &object2))
 	{
-		return NULL;
+		return NULL; 
 	}
     w = calloc(n * n, sizeof(double));
 	if (NULL == w)
@@ -186,7 +176,6 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     }
     ParseInput(n, n, w, object1);
     ParseInput(n, k, h, object2);
-	
     status = 0;
     res = symnmf(n, k, w, h, &status);
     free(h);
@@ -195,12 +184,10 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     {
         return NULL;
     }
-    else
+    else 
     {
-        object1 = CreateReturnValue(res, n, n);
-        if (res != NULL) {
-           free(res);
-        }
+        object1 = CreateReturnValue(res, n, k);
+        free(res);
         return object1;
     }
 }
