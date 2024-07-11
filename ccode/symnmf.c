@@ -15,7 +15,7 @@
 #define PRINTERROR printf("An Error Has Occured\n")
 
 #ifdef DEBUG 
-#define debug(x) prinft("%s\n", x)
+#define debug(x) printf("%s\n", x)
 #else 
 #define debug(x) ;
 #endif 
