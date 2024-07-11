@@ -228,7 +228,7 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
 double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double *Hcur, *Hnext, *temp1, *temp2, *swap;
-    int i;
+    int i, j, index;
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
@@ -248,13 +248,35 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
         if (F2NormOfDifference(n, k, Hcur, Hnext) < eps)
             break;
     }
+
+    free(temp2); 
+    free(temp1); 
+    if (H == Hnext)
+    {
+        return Hcur;
+    }
+    else
+    {
+        #ifdef DEBUG
+        printf("H equals Hcur? %d", H == Hcur);
+        #endif
+        for (i = 0; i < n; i++)
+        {
+            for (j = 0; j < k; j++)
+            {
+                index = Index(k, i, j);
+                Hnext[index] = Hcur[index];
+            }
+        }
+        return Hnext;
+    }
 symnmf_free3:
     free(temp2); 
 symnmf_free2:
     free(temp1); 
 symnmf_free1:
     free(Hnext); 
-    return Hcur;
+    return NULL;
 }
 
 

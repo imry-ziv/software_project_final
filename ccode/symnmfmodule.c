@@ -5,6 +5,14 @@
 #include <math.h>
 #include "symnmf.h"
 
+#define DEBUG
+
+#ifdef DEBUG 
+#define debug(x) printf("%s\n", x)
+#else 
+#define debug(x) ;
+#endif
+
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
@@ -162,6 +170,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     int n, k, status;
     double *w, *h, *res;
     PyObject *object1, *object2;
+	debug("In symnmf wrapper");
     if (!PyArg_ParseTuple(args, "iiOO", &n, &k, &object1, &object2))
 	{
 		return NULL;
@@ -177,9 +186,10 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     }
     ParseInput(n, n, w, object1);
     ParseInput(n, k, h, object2);
+	
     status = 0;
     res = symnmf(n, k, w, h, &status);
-    //free(h);
+    free(h);
 	free(w);
     if (0 != status)
     {
