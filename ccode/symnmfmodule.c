@@ -5,14 +5,6 @@
 #include <math.h>
 #include "symnmf.h"
 
-#define DEBUG
-
-#ifdef DEBUG 
-#define debug(x) printf("%s\n", x)
-#else 
-#define debug(x) ;
-#endif
-
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
