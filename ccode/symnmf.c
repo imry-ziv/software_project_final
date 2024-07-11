@@ -7,11 +7,18 @@
 #include "symnmf.h"
 #include <string.h>
 
+#define DEBUG
+
 #define beta 0.5
 #define eps 1e-4
 #define maxIteration 300
 #define PRINTERROR printf("An Error Has Occured\n")
 
+#ifdef DEBUG 
+#define debug(x) prinft("%s\n", x)
+#else 
+#define debug(x) ;
+#endif 
 
 /*
 Implementation convention - matrices are stored as linear arrays.
@@ -288,11 +295,15 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
         *status = 1;
         return; 
     }
+    #ifdef DEBUG
+    printf("Read dimension: %d\n", elem);
+    #endif
     *d = elem;
     *n = entryCount / *d;
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
+        debug("number of points mismatch");
         PRINTERROR;
         return;
     }
@@ -305,6 +316,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
 			if (1 != convs)
             {
 				*status = 1;
+                debug("Failed to convert a value in input text file.");
                 PRINTERROR;
                 return;
             }
@@ -370,12 +382,17 @@ int main(int argc, char **argv)
         return 1;
     n = 0;
     d = 0;
+    debug("Reading points");
     ReadPoints(stream, points, entryCount, &d, &n, &status);
     fclose(stream);
     if (0 != status)
+    {
+        debug("Failed to read points");
         goto main_free1;
+    }
     if (0 == strcmp(goal, "sym"))
     {
+        debug("Entering sym");
         res = sym(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "ddg"))
