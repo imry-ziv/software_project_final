@@ -3,7 +3,7 @@ from typing import List, Tuple
 
 from sklearn.metrics import silhouette_score
 
-from kmeans import kmeans, euclidean_distance
+from kmeans import kmeans, euclidean_distance, Point
 from symnmf import get_points_from_file, compute_symnmf, derive_clustering_solution_symnmf
 import numpy as np
 
@@ -11,8 +11,8 @@ MAX_ITER = 300
 EPSILON = 1e-4
 
 def compute_sscore(
-        nmf_clusters: List[List[Tuple[float, ...]]],
-        kmeans_clusters: List[List[Tuple[float, ...]]],
+        nmf_clusters: List[List[List[float]]],
+        kmeans_clusters: List[List[List[float]]],
 ) -> Tuple[float, float]:
 
     return (
@@ -21,24 +21,22 @@ def compute_sscore(
     )
 
 
-def compute_sscore_for_method(
-        clusters: List[List[Tuple[float, ...]]],
-) -> float:
-
-    flat_clusters = np.array(clusters).flatten()
+def compute_sscore_for_method(clusters: List[List[Point]]) -> float:
+    # Flatten the list of clusters to a list of points
+    flat_clusters = flatten_3d_to_2d(clusters)
     n = len(flat_clusters)
 
-    data_array = np.empty(n, dtype=object)
+    # Create a 2D numpy array for data and a 1D numpy array for labels
+    data_array = np.array([point.coordinates for point in flat_clusters])
     labels_array = np.empty(n, dtype=int)
 
     index = 0
     for cluster_index, cluster in enumerate(clusters):
         for datapoint_index, datapoint in enumerate(cluster):
-            data_array[index] = datapoint
             labels_array[index] = cluster_index
             index += 1
 
-    # Todo: check whether sklearn.metrics.silhouette_score is ok with populating the X array with tuples
+    # Calculate the silhouette score
     score = silhouette_score(data_array, labels_array)
     return score
 
@@ -88,10 +86,12 @@ def compute_sscore_for_method(
 #
 #
 
+def flatten_3d_to_2d(points_list: List[List[Point]]) -> List[Point]:
+    return [point for sublist in points_list for point in sublist]
 
 
 
-if __name__ == ('__main__'):
+if __name__ == '__main__':
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -110,18 +110,21 @@ if __name__ == ('__main__'):
 
     data_matrix = get_points_from_file(input_file)
     n = len(data_matrix)
-
+    try:
+        d = len(data_matrix[0]) # We assume that all points have the same d.
+    except:
+        print('tbd')
     # For both methods,
     # resulting "clusters" is List[List[float]]
     # where the cluster is denoted by its index in list.
 
     # Compute symnmnf clusters
-    best_H = compute_symnmf(n, k, data_matrix)
+    best_H = compute_symnmf(n, k, d, data_matrix)
     nmf_clusters = derive_clustering_solution_symnmf(data_matrix, best_H, k)
 
     # Compute kmeans clusters
     _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix)
 
     sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
-    print(f'nmf: {sscore_nmf}\n')
-    print(f'kmeans: {sscore_kmeans}\n')
+    print(f'nmf: {sscore_nmf}')
+    print(f'kmeans: {sscore_kmeans}')
