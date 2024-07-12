@@ -1,0 +1,10 @@
+
+python:
+2 ddg test_input_small2.txt
+2 symnmf test_input_small4.txt
+2 ddg test_input_small6.txt
+2 symnmf test_input_small8.txt
+2 symnmf test_input1.txt
+3 ddg test_input2.txt
+2 symnmf test_input4.txt
+5 ddg test_input6.txt

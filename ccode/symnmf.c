@@ -399,7 +399,6 @@ int main(int argc, char **argv)
     }
     else if (0 == strcmp(goal, "ddg"))
     {
-        printf("Enterind ddg\n");
         res = ddg(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "norm"))

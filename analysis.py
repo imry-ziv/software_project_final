@@ -126,5 +126,5 @@ if __name__ == '__main__':
     _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix)
 
     sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
-    print(f'nmf: {sscore_nmf}')
-    print(f'kmeans: {sscore_kmeans}')
+    print(f'nmf: {sscore_nmf:.4f}')
+    print(f'kmeans: {sscore_kmeans:.4f}')
