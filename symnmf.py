@@ -128,17 +128,13 @@ if __name__ == '__main__': # We currently assume inputs are valid.
 
     if goal == 'symnmf':
         required_matrix = compute_symnmf(n, k, d, data_matrix)
-    elif goal == 'sym':
+    else:
         data_matrix_lists = [point.coordinates for point in data_matrix]
-        required_matrix = sym.sym(n, d, data_matrix_lists)
-    elif goal == 'ddg':
-        required_matrix = sym.ddg(
-            n,
-            d,
-            data_matrix,
-        )
-    else: # goal == 'norm' - inputs considered valid
-        data_matrix_lists = [point.coordinates for point in data_matrix]
-        required_matrix = sym.norm(n,d,data_matrix_lists)
+        if goal == 'sym':
+            required_matrix = sym.sym(n, d, data_matrix_lists)
+        elif goal == 'ddg':
+            required_matrix = sym.ddg(n, d, data_matrix_lists)
+        else: # goal == 'norm' - inputs considered valid
+            required_matrix = sym.norm(n,d,data_matrix_lists)
 
     show_matrix(required_matrix)
