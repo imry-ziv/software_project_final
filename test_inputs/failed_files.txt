@@ -1,3 +1,34 @@
+general:
+sym works both through python and through c
+norm works both through python and through c
+
+python failures that i think are due to c computations:
+2 symnmf test_input_small4.txt (wrong output matrix values)
+2 symnmf test_input_small8.txt (wrong output matrix values)
+2 symnmf test_input1.txt (wrong output matrix values)
+2 symnmf test_input4.txt (wrong output matrix values)
+3 symnmf test_input8.txt (wrong output matrix values)
+2 symnmf test_input12.txt (wrong output matrix values)
+6 symnmf test_input16.txt (wrong output matrix values)
+5 symnmf test_input20.txt (wrong output matrix values)
+3 symnmf test_input24.txt (wrong output matrix values)
+4 symnmf test_input28.txt (wrong output matrix values)
+5 symnmf test_input32.txt (wrong output matrix values)
+6 symnmf test_input36.txt (wrong output matrix values)
+
+c failures:
+ddg test_input6.txt (output is "An Error Has Occured")
+norm test_input7.txt (output is "An Error Has Occured")
+sym test_input13.txt (output is "An Error Has Occured")
+sym test_input21.txt (output is "An Error Has Occured")
+norm test_input23.txt (output is "An Error Has Occured")
+ddg test_input26.txt (output is "An Error Has Occured")
+sym test_input29.txt (output is "An Error Has Occured")
+ddg test_input30.txt (output is "An Error Has Occured")
+sym test_input33.txt (output is "An Error Has Occured")
+(note that running "sym test_input9.txt", "ddg test_input22.txt" in c program works)
+
+
 
 python:
 2 ddg test_input_small2.txt
