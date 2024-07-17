@@ -1,6 +1,6 @@
 general:
-sym works both through python and through c
-norm works both through python and through c
+sym works both through python and through c (but sometimes through c it prints an error has occured)
+norm works both through python and through c (but sometimes through c it prints an error has occured)
 
 python failures that i think are due to c computations:
 2 symnmf test_input_small4.txt (wrong output matrix values)
@@ -28,14 +28,3 @@ ddg test_input30.txt (output is "An Error Has Occured")
 sym test_input33.txt (output is "An Error Has Occured")
 (note that running "sym test_input9.txt", "ddg test_input22.txt" in c program works)
 
-
-
-python:
-2 ddg test_input_small2.txt
-2 symnmf test_input_small4.txt
-2 ddg test_input_small6.txt
-2 symnmf test_input_small8.txt
-2 symnmf test_input1.txt
-3 ddg test_input2.txt
-2 symnmf test_input4.txt
-5 ddg test_input6.txt
