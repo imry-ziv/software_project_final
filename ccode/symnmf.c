@@ -7,22 +7,15 @@
 #include "symnmf.h"
 #include <string.h>
 
-#define DEBUG
-
 #define beta 0.5
 #define eps 1e-4
 #define maxIteration 300
 #define PRINTERROR printf("An Error Has Occured\n")
 
-#ifdef DEBUG 
-#define debug(x) printf("%s\n", x)
-#else 
-#define debug(x) ;
-#endif 
 
 /*
 Implementation convention - matrices are stored as linear arrays.
-Therefore points [d,n] will be an d*n array where [0], ..., [d-1] 
+Therefore points [n,d] will be an n*d array where [0], ..., [d-1] 
 comprise the first vector, etc. 
 Regarding memory - method do not clean input memory, and 
 only clean allocated memory that's not the result.
@@ -42,6 +35,26 @@ double EuclideanDistanceSqr(int d, double *points, int i1, int i2)
         sum += temp * temp;
     }
     return sum;
+}
+
+void PrintPoint(int d, int index, double *points)
+{
+    int elem;
+    printf("%.4f", points[index]);
+    for (elem = 1; elem < d; elem++)
+    {
+        printf(",%.4f", points[index + elem]);
+    }
+    printf("\n");
+}
+
+void PrintPoints(int n, double *points)
+{
+	int i;
+	for (i = 0; i < n; i++)
+	{
+		PrintPoint(n, n * i, points);
+	}
 }
 
 double *AllocateMatrix(int a, int b, int* status)
@@ -64,12 +77,12 @@ void MultiplyMatricesNonAlloc(int a, int b, int c, double *A, double *B, double 
     {
         for (j = 0; j < c; j++)
         {
-            sum = 0;
+            sum = 0.0;
             for (k = 0; k < b; k++)
             {
-                sum += A[Index(a, i, k)] * B[Index(b, k, j)];
+                sum += A[Index(b, i, k)] * B[Index(c, k, j)];
             }
-            dest[Index(a, i, j)] = sum;
+            dest[Index(c, i, j)] = sum;
         }
     }
 }
@@ -170,7 +183,7 @@ norm_free1:
     return A;
 }
 
-float F2NormOfDifference(int a, int b, double *A, double *B)
+double F2NormOfDifference(int a, int b, double *A, double *B)
 {
     int i, j, index;
     double dif, sum = 0;
@@ -228,7 +241,7 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
 double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double *Hcur, *Hnext, *temp1, *temp2, *swap;
-    int i;
+    int i, j, index;
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
@@ -248,34 +261,31 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
         if (F2NormOfDifference(n, k, Hcur, Hnext) < eps)
             break;
     }
+    free(temp2); 
+    free(temp1); 
+    if (H == Hnext)
+    {
+        return Hcur;
+    }
+    else
+    {
+        for (i = 0; i < n; i++)
+        {
+            for (j = 0; j < k; j++)
+            {
+                index = Index(k, i, j);
+                Hnext[index] = Hcur[index];
+            }
+        }
+        return Hnext;
+    }
 symnmf_free3:
     free(temp2); 
 symnmf_free2:
     free(temp1); 
 symnmf_free1:
     free(Hnext); 
-    return Hcur;
-}
-
-
-void PrintPoint(int d, int index, double *points)
-{
-    int elem;
-    printf("%.4f", points[index]);
-    for (elem = 1; elem < d; elem++)
-    {
-        printf(",%.4f", points[index + elem]);
-    }
-    printf("\n");
-}
-
-void PrintPoints(int n, double *points)
-{
-	int i;
-	for (i = 0; i < n; i++)
-	{
-		PrintPoint(n, n * i, points);
-	}
+    return NULL;
 }
 
 void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
@@ -295,15 +305,11 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
         *status = 1;
         return; 
     }
-    #ifdef DEBUG
-    printf("Read dimension: %d\n", elem);
-    #endif
     *d = elem;
     *n = entryCount / *d;
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
-        debug("number of points mismatch");
         PRINTERROR;
         return;
     }
@@ -316,7 +322,6 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
 			if (1 != convs)
             {
 				*status = 1;
-                debug("Failed to convert a value in input text file.");
                 PRINTERROR;
                 return;
             }
@@ -382,22 +387,18 @@ int main(int argc, char **argv)
         return 1;
     n = 0;
     d = 0;
-    debug("Reading points");
     ReadPoints(stream, points, entryCount, &d, &n, &status);
     fclose(stream);
     if (0 != status)
     {
-        debug("Failed to read points");
         goto main_free1;
     }
     if (0 == strcmp(goal, "sym"))
     {
-        debug("Entering sym");
         res = sym(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
-        printf("Enterind ddg\n");
         res = ddg(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "norm"))

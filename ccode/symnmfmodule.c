@@ -178,7 +178,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     ParseInput(n, k, h, object2);
     status = 0;
     res = symnmf(n, k, w, h, &status);
-    //free(h);
+    free(h);
 	free(w);
     if (0 != status)
     {
@@ -186,7 +186,7 @@ PyObject* SymNMFWrapper(PyObject* self, PyObject* args)
     }
     else 
     {
-        object1 = CreateReturnValue(res, n, n);
+        object1 = CreateReturnValue(res, n, k);
         free(res);
         return object1;
     }

@@ -1,0 +1,7 @@
+setup.py
+ccode/symnmf.c
+ccode/symnmfmodule.c
+symnmf_c_api.egg-info/PKG-INFO
+symnmf_c_api.egg-info/SOURCES.txt
+symnmf_c_api.egg-info/dependency_links.txt
+symnmf_c_api.egg-info/top_level.txt

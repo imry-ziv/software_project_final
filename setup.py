@@ -1,7 +1,9 @@
 from setuptools import Extension, setup
-module = Extension("symnmf_c_api", sources=['ccode/symnmfmodule.c', 'ccode/symnmf.c'])
+module = Extension("symnmf_c_api", sources=['ccode/symnmfmodule.c', 'ccode/symnmf.c'],
+                   extra_compile_args=['-g']
+)
 setup(name='symnmf_c_api',
      version='1.0',
      description='Python wrapper for custom C extension',
-     ext_modules=[module]
+     ext_modules=[module],
 )
