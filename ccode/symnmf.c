@@ -8,7 +8,7 @@
 #include <string.h>
 
 #define beta 0.5
-#define eps 1e-4
+#define eps 0.0001
 #define maxIteration 300
 #define PRINTERROR printf("An Error Has Occured\n")
 
@@ -236,7 +236,8 @@ void Transpose(int a, int b, double *src, double *dest)
     }
 }
 
-/* H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k]
+/* 
+H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k]
 since we use temp1 as both [n,k]  and [k,n]
 */
 void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, double *temp1, double *temp2)
@@ -264,9 +265,8 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
 
 double *symnmf(int n, int k, double* W, double *H, int* status)
 {
-    double *Hcur, *Hnext, *temp1, *temp2, *swap;
+    double /* *Hcur, */*Hnext, *temp1, *temp2; /*, *swap;*/
     int i, j, index;
-    Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
     {
@@ -287,15 +287,17 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
     }
     for (i = 0; i < maxIteration; i++)
     {
-        ConvergenceStep(n, k, W, Hcur, Hnext, temp1, temp2);
-        swap = Hcur;
-        Hcur = Hnext;
-        Hnext = swap;
-        if (F2NormOfDifference(n, k, Hcur, Hnext) < eps)
+        ConvergenceStep(n, k, W, H, Hnext, temp1, temp2);
+        if (F2NormOfDifference(n, k, H, Hnext) < eps)
             break;
+        for (j = 0; j < n*k; j++)
+        {
+            H[j] = Hnext[j];
+        }
     }
     free(temp2); 
-    free(temp1); 
+    free(temp1);
+    /*
     if (H == Hnext)
     {
         #ifdef DEBUG
@@ -318,6 +320,8 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
         #endif
         return Hnext;
     }
+    */
+   return Hnext;
 symnmf_free3:
     free(temp2); 
 symnmf_free2:
