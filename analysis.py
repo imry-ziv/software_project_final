@@ -11,6 +11,23 @@ import numpy as np
 MAX_ITER = 300
 EPSILON = 1e-4
 
+
+YEET_MATRIX = [[0.0824,0.0924,0.0965,0.0701,0.0434,0.1544],
+[0.1134,0.0967,0.1654,0.0706,0.1077,0.0673],
+[0.1508,0.1582,0.0609,0.0707,0.0250,0.1771],
+[0.1121,0.1165,0.1393,0.1045,0.0811,0.1333],
+[0.0552,0.1284,0.0744,0.1239,0.1214,0.1398],
+[0.0959,0.1273,0.1376,0.0986,0.0101,0.1500],
+[0.1077,0.1144,0.1255,0.0975,0.0709,0.0842],
+[0.1667,0.0350,0.1768,0.0970,0.0802,0.0476],
+[0.1064,0.1125,0.1370,0.1092,0.1224,0.0547],
+[0.0821,0.0968,0.1463,0.1009,0.1010,0.1457],
+[0.0699,0.0673,0.1615,0.0683,0.0798,0.1526],
+[0.1679,0.0374,0.1606,0.0361,0.0984,0.0908],
+[0.1694,0.0918,0.1770,0.0196,0.0815,0.0466],
+[0.1208,0.0574,0.1281,0.0983,0.0431,0.1532],
+[0.0912,0.0951,0.1178,0.0479,0.0928,0.1756]]
+
 def file_to_points(
         file_name: str,
 ) -> List[List[float]]:
@@ -121,6 +138,9 @@ if __name__ == '__main__':
     k = args.k
     input_file = args.input_file
 
+    # input_file = 'test_inputs/test_input9.txt'
+    # k=6
+
     data_matrix_as_points = file_to_points(input_file)
     data_matrix_as_lists = file_to_lists(input_file)
 
@@ -135,19 +155,13 @@ if __name__ == '__main__':
 
     # Compute symnmnf clusters
     best_H = compute_symnmf(n, k, d, data_matrix_as_lists)
+    #best_H = YEET_MATRIX
     nmf_clusters = derive_clustering_solution_symnmf(data_matrix_as_points, best_H, k)
 
     # Compute kmeans clusters
     _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix_as_points)
-    try:
-        for ncluster in nmf_clusters:
-            assert ncluster != []
-        for kcluster in kmeans_clusters:
-            assert kcluster != []
-        sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
-    except:
-        print('An Error Has Occured')
-        sys.exit(1)
+
+    sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
 
     print(f'nmf: {sscore_nmf:.4f}')
     print(f'kmeans: {sscore_kmeans:.4f}')
