@@ -26,8 +26,8 @@ np.random.seed(0)
 
 
 # Helper functions.
-def get_points_from_file(
-        file_name: str
+def file_to_lists(
+        file_name: str,
 ) -> List[List[float]]:
     """
     Opens .txt file, returns matrix (List[List[float]) containing data.
@@ -145,7 +145,7 @@ if __name__ == '__main__': # We currently assume inputs are valid.
     file_name = args.file_name
 
 
-    data_matrix = get_points_from_file(file_name)
+    data_matrix = file_to_lists(file_name)
     n = len(data_matrix)
     try:
         d = len(data_matrix[0]) # We assume that all points have the same d.

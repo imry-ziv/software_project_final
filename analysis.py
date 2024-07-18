@@ -5,11 +5,23 @@ from typing import List, Tuple
 from sklearn.metrics import silhouette_score
 
 from kmeans import kmeans, euclidean_distance, Point
-from symnmf import get_points_from_file, compute_symnmf, derive_clustering_solution_symnmf
+from symnmf import compute_symnmf, derive_clustering_solution_symnmf, file_to_lists
 import numpy as np
 
 MAX_ITER = 300
 EPSILON = 1e-4
+
+def file_to_points(
+        file_name: str,
+) -> List[List[float]]:
+
+
+    matrix = []
+    with open(file_name, 'r') as file:
+        for line in file:
+            row = line.strip().split(',')
+            matrix.append(Point([float(value) for value in row]))
+    return matrix
 
 def compute_sscore(
         nmf_clusters: List[List[List[float]]],
@@ -109,10 +121,12 @@ if __name__ == '__main__':
     k = args.k
     input_file = args.input_file
 
-    data_matrix = get_points_from_file(input_file)
-    n = len(data_matrix)
+    data_matrix_as_points = file_to_points(input_file)
+    data_matrix_as_lists = file_to_lists(input_file)
+
+    n = len(data_matrix_as_points)
     try:
-        d = len(data_matrix[0]) # We assume that all points have the same d.
+        d = len(data_matrix_as_points[0]) # We assume that all points have the same d.
     except:
         print('tbd')
     # For both methods,
@@ -120,11 +134,11 @@ if __name__ == '__main__':
     # where the cluster is denoted by its index in list.
 
     # Compute symnmnf clusters
-    best_H = compute_symnmf(n, k, d, data_matrix)
-    nmf_clusters = derive_clustering_solution_symnmf(data_matrix, best_H, k)
+    best_H = compute_symnmf(n, k, d, data_matrix_as_lists)
+    nmf_clusters = derive_clustering_solution_symnmf(data_matrix_as_points, best_H, k)
 
     # Compute kmeans clusters
-    _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix)
+    _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix_as_points)
     try:
         for ncluster in nmf_clusters:
             assert ncluster != []
