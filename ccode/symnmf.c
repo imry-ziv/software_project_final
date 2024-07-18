@@ -215,7 +215,7 @@ double F2NormOfDifference(int a, int b, double *A, double *B)
     {
         for (j = 0; j < b; j++)
         {
-            index = Index(a, i, j);
+            index = Index(b, i, j);
             dif = A[index] - B[index];
             sum += dif * dif;
         }
@@ -347,7 +347,7 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
     }
     *d = elem;
     #ifdef DEBUG
-    printf("Found dimension %d", elem);
+    printf("Found dimension %d.\n", elem);
     #endif
     *n = entryCount / *d;
     if ((*n) * (*d) != entryCount)
