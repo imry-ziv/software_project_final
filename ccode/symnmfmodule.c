@@ -13,11 +13,17 @@
 #define debug(x) ;
 #endif
 
+/*
+Calculates the flattened equivalent of a 2d index.
+*/
 static int index1(int pointIndex, int elementIndex, int d)
 {
 	return d * pointIndex + elementIndex;
 }
 
+/*
+Creates a PyObject return value from a flattened matrix of points.
+*/
 PyObject* CreateReturnValue(double* points, int n, int d)
 {
 	int i, elem, len, len2, j;
@@ -62,10 +68,11 @@ error:
 	return NULL;
 }
 
-//n - number of points
-//d - dimension of each point
-//unpacks input into points 
-
+/*
+n - number of points
+d - dimension of each point
+Unpacks given input into points[n,d] matrix.
+*/
 void ParseInput(int n, int d, double *points, PyObject *input)
 {
     int i, j;

@@ -20,7 +20,7 @@
 #define debug(x) ;
 #endif
 
-#define TESTER
+#define __TESTER
 
 
 /*
@@ -30,11 +30,18 @@ comprise the first vector, etc.
 Regarding memory - method do not clean input memory, and 
 only clean allocated memory that's not the result.
 */
+
+/*
+Calculates the flattened equivalent of a 2d index.
+*/
 int Index(int rowLength, int row, int col)
 {
     return row * rowLength + col;
 }
 
+/*
+Computes euclidean distance squared between two point vectors.
+*/
 double EuclideanDistanceSqr(int d, double *points, int i1, int i2)
 {
     double sum = 0, temp = 0;
@@ -47,6 +54,9 @@ double EuclideanDistanceSqr(int d, double *points, int i1, int i2)
     return sum;
 }
 
+/*
+Prints a point, rounded to 4 decimal places.
+*/
 void PrintPoint(int d, int index, double *points)
 {
     int elem;
@@ -58,6 +68,9 @@ void PrintPoint(int d, int index, double *points)
     printf("\n");
 }
 
+/*
+Prints an array of length n, of points of dimension d. 
+*/
 void PrintPoints(int n, int d, double *points)
 {
 	int i;
@@ -66,7 +79,9 @@ void PrintPoints(int n, int d, double *points)
 		PrintPoint(d, d * i, points);
 	}
 }
-
+/*
+Allocates a flattened matrix of the given dimensions.
+*/
 double *AllocateMatrix(int a, int b, int* status)
 {
     double *res = (double*)malloc(a * b * sizeof(double));
@@ -76,8 +91,8 @@ double *AllocateMatrix(int a, int b, int* status)
 }
 
 /*
-A[a,b], B[b,c], and dest[a,c]
-overwrites result into dest
+Required sizes: A[a,b], B[b,c], and dest[a,c]
+Overwrites the values in dest with the multiplication result.
 */
 void MultiplyMatricesNonAlloc(int a, int b, int c, double *A, double *B, double *dest)
 {
@@ -97,7 +112,11 @@ void MultiplyMatricesNonAlloc(int a, int b, int c, double *A, double *B, double 
     }
 }
 
-/* A[a,b] and B[b,c] */
+/* 
+Required sizes: A[a,b], B[b,c]
+Allocates and returns result.
+Includes status to indicate failed allocation. 
+*/
 double *MultiplyMatrices(int a, int b, int c, double *A, double *B, int* status)
 {
     double *res = AllocateMatrix(a, c, status);
@@ -107,6 +126,10 @@ double *MultiplyMatrices(int a, int b, int c, double *A, double *B, int* status)
     return res;
 }
 
+/*
+Calculates the symmetric matrix from the given flattened points array.
+Includes status to indicate failure. 
+*/
 double *sym(int n, int d, double *points, int* status)
 {
     double dist;
@@ -133,6 +156,11 @@ double *sym(int n, int d, double *points, int* status)
     return A;
 }
 
+/*
+Calculates the diagonal matrix from the given symmetric matrix.
+Allocates and computes the result.
+Includes status to indicate failure. 
+*/
 double *ddgFromA(int n, double *A, int* status)
 {    
     int i, j;
@@ -156,6 +184,11 @@ double *ddgFromA(int n, double *A, int* status)
     return D;
 }
 
+/*
+Calculates the diagonal matrix from the given flattened points array.
+Allocates and computes the result.
+Includes status to indicate failure. 
+*/
 double *ddg(int n, int d, double *points, int* status)
 {
     double *res, *D = sym(n, d, points, status);
@@ -169,6 +202,11 @@ double *ddg(int n, int d, double *points, int* status)
     return res; /* can be null if we failed along the way */
 }
 
+/*
+Calculates the norm matrix from the given flattened points array.
+Allocates and computes the result.
+Includes status to indicate failure. 
+*/
 double *norm(int n, int d, double *points, int* status)
 {
     int i;
@@ -196,7 +234,7 @@ double *norm(int n, int d, double *points, int* status)
         goto norm_free2;
     }
     /*
-    A is overwritten here since it's no longer in use
+    A is overwritten here since it's no longer in use.
     It now stores the result of the calculation.
     */
     MultiplyMatricesNonAlloc(n, n, n, temp, D, A);
@@ -207,6 +245,10 @@ norm_free1:
     return A;
 }
 
+/*
+Calculates the squared Frobenius norm of a difference of wo similarly sized matrices.
+Both A and B must be of the form [a,b].
+*/
 double F2NormOfDifference(int a, int b, double *A, double *B)
 {
     int i, j, index;
@@ -223,7 +265,10 @@ double F2NormOfDifference(int a, int b, double *A, double *B)
     return sum;
 }
 
-/* src[a,b], dest[b,a] */
+/* 
+Required sizes: src[a,b], dest[b,a] 
+dest = src^T.
+*/
 void Transpose(int a, int b, double *src, double *dest)
 {
     int i, j;
@@ -237,14 +282,17 @@ void Transpose(int a, int b, double *src, double *dest)
 }
 
 /* 
-H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k]
-since we use temp1 as both [n,k]  and [k,n]
+Calculates one convergence step. Hcur is H^(t) and Hnext is H^(t+1).
+Required sizes: H[n,k] (cur and next), W[n,n], temp1[n*k], temp2[k,k].
+temp1 is n*k since it is used as both [n,k]  and [k,n].
+It does not matter since it is flattened.
+The buffers temp1, temp2, and Hcur are filled with garbage and are unusable henceforth.
 */
 void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, double *temp1, double *temp2)
 {
     int i,j, index;
     /* Step 1: calculate W*Hcur
-    we'll store this in Hnext since it's [n,k] */
+    we'll store this in Hnext since it's just the right size and this saves a buffer */
     MultiplyMatricesNonAlloc(n, n, k, W, Hcur, Hnext);
     /* Step 2: calculate Hcur^T * Hcur
     We'll store H^T in temp1, and the resulting [k,k] matrix in temp2 */
@@ -263,6 +311,13 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
     }
 }
 
+/*
+Calculates the clustering matrix from the given flattened norm matrix, 
+and flattened initialized H matrix.
+Allocates and computes the result.
+Includes status to indicate failure. 
+Does not free its inputs, but H is filled with garbage.
+*/
 double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double /* *Hcur, */*Hnext, *temp1, *temp2; /*, *swap;*/
@@ -338,6 +393,13 @@ symnmf_free1:
     return NULL;
 }
 
+/*
+Reads and flattens a file describing an array of points into the given points pointer.
+Validates that the number of points found is entrycount.
+Includes status to indicate failures, such as incorrect formatting,
+inconsistent dimension and missing points. 
+Also outputs the number of points and their dimensions into n, d.
+*/
 void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
 {
     int convs, pointIndex, elem;
@@ -396,25 +458,18 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
             return;
 		}
 	}
-    /* validate EOF - they say we dont actually need to do this
-    sep = fgetc(stream);
-    if (sep != EOF)
-    {
-        *status = 1;
-        printf("Did not reach EOF: instead got %d after %d points.\n", sep, pointIndex);
-        sep = fgetc(stream);
-        while (sep != EOF)
-        {
-            printf("%c\n", sep = fgetc(stream));
-        } 
-        PRINTERROR;
-        return;
-    }
-    */
 }
 
+/*
+Count how many points are in the given file.
+*/
 int CountPoints(FILE *stream)
-{/* each point has a decimal point, so we'll count those */
+{
+    /* 
+    Each point has a decimal point, so we'll count those.
+    The tester allowed for integers in the file, so we counted commas and newlines instead.
+    This is worse because it relies on formatting.
+    */
     int res;
     char c;
     res = 0;
