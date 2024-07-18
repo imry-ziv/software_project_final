@@ -68,12 +68,12 @@ def compute_symnmf(
 
     m = average_value_over_matrix(W)
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
-    print('our initial H: ')
-    show_matrix(initial_H)
-    print('our W: ')
-    show_matrix(W)
-    print('our M: ')
-    print(m)
+    #print('our initial H: ')
+    #show_matrix(initial_H)
+    #print('our W: ')
+    #show_matrix(W)
+    #print('our M: ')
+    #print(m)
     x = sym.symnmf(
         n,
         k,
