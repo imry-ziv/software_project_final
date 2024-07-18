@@ -266,7 +266,7 @@ void ConvergenceStep(int n, int k, double* W, double *Hcur, double *Hnext, doubl
 double *symnmf(int n, int k, double* W, double *H, int* status)
 {
     double /* *Hcur, */*Hnext, *temp1, *temp2; /*, *swap;*/
-    int i, j, index;
+    int i, j; /*, index; */
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
     {
