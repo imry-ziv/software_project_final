@@ -62,7 +62,7 @@ def initialize_H_matrix(
 
 def average_value_over_matrix(
         matrix: List[List[float]]
-) -> floating[Any]:
+):
     """
     Return average value across all matrix entries.
     """
