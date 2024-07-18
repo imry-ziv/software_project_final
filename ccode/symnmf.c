@@ -297,6 +297,14 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
     }
     free(temp2); 
     free(temp1);
+    #ifdef DEBUG
+    printf("Finished after %d iterations.\n", i);
+    printf("H:\n");
+    PrintPoints(n, k, H);
+    printf("Hnext:\n");
+    PrintPoints(n, k, Hnext);
+    #endif
+    return Hnext;
     /*
     if (H == Hnext)
     {
@@ -321,7 +329,6 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
         return Hnext;
     }
     */
-   return Hnext;
 symnmf_free3:
     free(temp2); 
 symnmf_free2:

@@ -113,7 +113,6 @@ def derive_clustering_solution_symnmf(
 
 
 if __name__ == '__main__': # We currently assume inputs are valid.
-    
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
