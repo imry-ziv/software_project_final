@@ -38,7 +38,7 @@ def initialize_H_matrix(
     for i in range(n):
         initial_h.append([])
         for j in range(k):
-            initial_h[i].append(float(2 * np.sqrt(m / k) * np.random.uniform()))
+            initial_h[i].append(2 * np.sqrt(m / k) * np.random.uniform())
     return initial_h
 
 
