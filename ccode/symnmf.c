@@ -20,6 +20,8 @@
 #define debug(x) ;
 #endif
 
+#define TESTER
+
 
 /*
 Implementation convention - matrices are stored as linear arrays.
@@ -408,8 +410,15 @@ int CountPoints(FILE *stream)
     do
     {
         c = fgetc(stream);
+        #ifdef TESTER
+        if (c == ',') 
+            ++res;
+        else if (c == '\n')
+            ++res;
+        #else
         if (c == '.')
             ++res;
+        #endif
     } while (c != EOF);
     rewind(stream);
     #ifdef DEBUG
