@@ -57,6 +57,9 @@ def symnmf(X, k, N):
             initial_h[i].append(2 * np.sqrt(m / k) * np.random.uniform())
     print('Initial H: ')
     printMat(initial_h)
+    print('W: ')
+    printMat(W)
+    print('m: ', m)
     return s.symnmf(initial_h, W)
 
 

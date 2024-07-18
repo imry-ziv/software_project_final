@@ -33,7 +33,7 @@ def initialize_H_matrix(
         n:int,
         k:int,
         m:float,
-) -> List[List[float]]:
+):
     initial_h = []
     for i in range(n):
         initial_h.append([])
@@ -70,6 +70,10 @@ def compute_symnmf(
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
     print('our initial H: ')
     show_matrix(initial_H)
+    print('our W: ')
+    show_matrix(W)
+    print('our M: ')
+    print(m)
     x = sym.symnmf(
         n,
         k,
