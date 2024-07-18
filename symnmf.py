@@ -45,8 +45,8 @@ def show_matrix(
         matrix: List[List[float]]
 ) -> None:
     for row in matrix:
-        row = [round(num, 4) for num in row]
-        print(','.join(map(str, row)))
+        formatted_list = ["{:.4f}".format(num) for num in row]
+        print(','.join(map(str, formatted_list)))
 
 def initialize_H_matrix(
         n:int,
@@ -97,7 +97,6 @@ def compute_symnmf(
         W,
         initial_H,
     ) # Returns best H
-    print("Back from C")
     return x
 
 def derive_clustering_solution_symnmf(
