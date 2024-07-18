@@ -5,7 +5,7 @@
 #include <math.h>
 #include "symnmf.h"
 
-#define DEBUG
+#define __DEBUG
 
 #ifdef DEBUG
 #define debug(x) printf("%s. \n", x);

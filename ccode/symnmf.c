@@ -12,7 +12,7 @@
 #define maxIteration 300
 #define PRINTERROR printf("An Error Has Occured\n")
 
-#define DEBUG
+#define __DEBUG
 
 #ifdef DEBUG
 #define debug(x) printf("%s. \n", x)
@@ -451,6 +451,11 @@ int main(int argc, char **argv)
     }
     goal = argv[1];
     stream = fopen(argv[2], "r");
+    if (NULL == stream)
+    {
+        PRINTERROR;
+        return 1;
+    }
     status = 0;
     /* dont let your memes be dreams */
     points = AllocateMatrix(entryCount = CountPoints(stream), 1, &status);
