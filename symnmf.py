@@ -1,11 +1,13 @@
 import argparse
+import sys
+
 import numpy as np
 from typing import List
 import symnmf_c_api as sym
 
 # Set random seed for reproducibility
 np.random.seed(0)
-
+ERROR_MSG = 'An Error Has Occured'
 
 
 ####################################################################
@@ -34,10 +36,14 @@ def file_to_lists(
     """
 
     matrix = []
-    with open(file_name, 'r') as file:
-        for line in file:
-            row = line.strip().split(',')
-            matrix.append([float(value) for value in row])
+    try:
+        with open(file_name, 'r') as file:
+            for line in file:
+                row = line.strip().split(',')
+                matrix.append([float(value) for value in row])
+    except FileNotFoundError:
+        print(ERROR_MSG)
+        sys.exit(1)
 
     return matrix
 
@@ -85,12 +91,7 @@ def compute_symnmf(
 
     m = average_value_over_matrix(W)
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
-    #print('our initial H: ')
-    #show_matrix(initial_H)
-    #print('our W: ')
-    #show_matrix(W)
-    #print('our M: ')
-    #print(m)
+
     x = sym.symnmf(
         n,
         k,
@@ -143,14 +144,16 @@ if __name__ == '__main__': # We currently assume inputs are valid.
     k = args.k
     goal = args.goal
     file_name = args.file_name
-
-
     data_matrix = file_to_lists(file_name)
+    if data_matrix == None:
+        pass
+
     n = len(data_matrix)
     try:
         d = len(data_matrix[0]) # We assume that all points have the same d.
     except:
-        print('tbd')
+        print(ERROR_MSG)
+        sys.exit(1)
 
     if goal == 'symnmf':
         required_matrix = compute_symnmf(n, k, d, data_matrix)
