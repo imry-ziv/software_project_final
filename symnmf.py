@@ -52,9 +52,13 @@ def initialize_H_matrix(
         n:int,
         k:int,
         m:float,
-) -> List[List[float]]:
-    upper_bound = 2 * np.sqrt(m / k)
-    return np.random.uniform(0, upper_bound, (n, k)).tolist()
+):
+    initial_h = []
+    for i in range(n):
+        initial_h.append([])
+        for j in range(k):
+            initial_h[i].append(2 * np.sqrt(m / k) * np.random.uniform())
+    return initial_h
 
 
 def average_value_over_matrix(
@@ -81,6 +85,12 @@ def compute_symnmf(
 
     m = average_value_over_matrix(W)
     initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
+    #print('our initial H: ')
+    #show_matrix(initial_H)
+    #print('our W: ')
+    #show_matrix(W)
+    #print('our M: ')
+    #print(m)
     x = sym.symnmf(
         n,
         k,

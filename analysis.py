@@ -1,4 +1,5 @@
 import argparse
+import sys
 from typing import List, Tuple
 
 from sklearn.metrics import silhouette_score
@@ -124,7 +125,15 @@ if __name__ == '__main__':
 
     # Compute kmeans clusters
     _, kmeans_clusters = kmeans(n, k, MAX_ITER, data_matrix)
+    try:
+        for ncluster in nmf_clusters:
+            assert ncluster != []
+        for kcluster in kmeans_clusters:
+            assert kcluster != []
+        sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
+    except:
+        print('An Error Has Occured')
+        sys.exit(1)
 
-    sscore_nmf, sscore_kmeans = compute_sscore(nmf_clusters, kmeans_clusters)
     print(f'nmf: {sscore_nmf:.4f}')
     print(f'kmeans: {sscore_kmeans:.4f}')
