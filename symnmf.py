@@ -1,30 +1,14 @@
+# Imports.
 import argparse
 import sys
-
 import numpy as np
-from typing import List
+from typing import List, Any
 import symnmf_c_api as sym
+from numpy import floating
 
-# Set random seed for reproducibility
+# Set seeds and env vars.
 np.random.seed(0)
-ERROR_MSG = 'An Error Has Occured'
-
-
-####################################################################
-# TEMPORARY: function signatures to fill in for symnmf.c functions #
-####################################################################
-#
-# def symnmf(args):
-#     return []
-#
-# def sym(args):
-#     return []
-#
-# def ddg(args):
-#     return []
-#
-# def norm(args):
-#     return []
+ERROR_MSG = 'An Error Has Occurred'
 
 
 # Helper functions.
@@ -32,33 +16,42 @@ def file_to_lists(
         file_name: str,
 ) -> List[List[float]]:
     """
-    Opens .txt file, returns matrix (List[List[float]) containing data.
+    Read data from .txt file, such that each point is represented as a list of floats.
     """
 
-    matrix = []
+    data_matrix_list = []
     try:
         with open(file_name, 'r') as file:
             for line in file:
                 row = line.strip().split(',')
-                matrix.append([float(value) for value in row])
+                data_matrix_list.append([float(value) for value in row])
+
     except FileNotFoundError:
         print(ERROR_MSG)
         sys.exit(1)
-
-    return matrix
+    return data_matrix_list
 
 def show_matrix(
         matrix: List[List[float]]
 ) -> None:
+    """
+    Prints matrix with point entries delimited by commas,
+    points delimited by newlines,
+    and point values truncated to .4f.
+    """
     for row in matrix:
         formatted_list = ["{:.4f}".format(num) for num in row]
         print(','.join(map(str, formatted_list)))
 
 def initialize_H_matrix(
-        n:int,
+        n: int,
         k:int,
         m:float,
-):
+) -> List[List[float]]:
+    """
+    Creates a n by k initial H matrix, populated by random values from [0,2*sqrt(m/k)],
+    where m is the average value of the W matrix.
+    """
     initial_h = []
     for i in range(n):
         initial_h.append([])
@@ -69,9 +62,9 @@ def initialize_H_matrix(
 
 def average_value_over_matrix(
         matrix: List[List[float]]
-) -> np.floating:
+) -> floating[Any]:
     """
-    Return average value accross all matrix entries.
+    Return average value across all matrix entries.
     """
     np_matrix = np.array(matrix)
     return np.mean(np_matrix)
@@ -82,47 +75,25 @@ def compute_symnmf(
         d:int,
         data_matrix: List[List[float]],
 ) -> List[List[float]]:
+    """
+    Given a data matrix of size n by k, with each point of dimension d:
+        1. Computes W, the normalized similarity matrix
+        2. Initializes H based on m, the average entry value of W
+        3. Returns the best H by running symnmf optimization starting from the initial H
+    """
 
-    W = sym.norm(
-        n,
-        d,
-        data_matrix,
-    )
-
+    W = sym.norm(n, d, data_matrix)
     m = average_value_over_matrix(W)
-    initial_H = initialize_H_matrix(n, k, m)  # Returns List[List[float]]
+    initial_H = initialize_H_matrix(n, k, m)
 
-    x = sym.symnmf(
-        n,
-        k,
-        W,
-        initial_H,
-    ) # Returns best H
-    return x
+    return sym.symnmf(n, k, W, initial_H) # Best H following optimization.
 
-def derive_clustering_solution_symnmf(
-        data_matrix: List[List[float]],
-        best_H: List[List[float]],
-        k: int,
-) -> List[List[float]]:
+
+if __name__ == '__main__':
     """
-    Derives list of lists, each inner list corresponding to a cluster, based on
-    the association matrix H.
-    To be used in analysis.
+    As per instructions, we assume argument inputs to be valid.
     """
-    clusters = [[] for _ in range(k)] # Initialize clusters as empty lists.
 
-    for i in range(len(data_matrix)):
-        datapoint = data_matrix[i]
-        association_row = best_H[i]
-        cluster_index = association_row.index(max(association_row))
-        clusters[cluster_index].append(datapoint)
-    return clusters
-
-
-
-
-if __name__ == '__main__': # We currently assume inputs are valid.
     parser = argparse.ArgumentParser()
 
     parser.add_argument(
@@ -140,15 +111,20 @@ if __name__ == '__main__': # We currently assume inputs are valid.
         type=str,
         help='The path to the .txt file assumed to contain N valid points.'
     )
-    args = parser.parse_args()
+
+    # Parsing user arguments.
+    try:
+        args = parser.parse_args()
+    except SystemExit as e:
+        print(ERROR_MSG)
+        sys.exit(1)
+
     k = args.k
     goal = args.goal
     file_name = args.file_name
     data_matrix = file_to_lists(file_name)
-    if data_matrix == None:
-        pass
-
     n = len(data_matrix)
+
     try:
         d = len(data_matrix[0]) # We assume that all points have the same d.
     except:
@@ -160,12 +136,8 @@ if __name__ == '__main__': # We currently assume inputs are valid.
     elif goal == 'sym':
         required_matrix = sym.sym(n, d, data_matrix)
     elif goal == 'ddg':
-        required_matrix = sym.ddg(
-            n,
-            d,
-            data_matrix,
-        )
-    else: # goal == 'norm' - inputs considered valid
+        required_matrix = sym.ddg(n, d, data_matrix)
+    else: # Implies goal == 'norm', thanks to previous try/except block.
         required_matrix = sym.norm(n, d, data_matrix)
 
     show_matrix(required_matrix)
