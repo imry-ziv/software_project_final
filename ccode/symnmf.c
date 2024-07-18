@@ -327,9 +327,9 @@ symnmf_free1:
 
 void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
 {
-    debug("Reading points");
     int convs, pointIndex, elem;
     char sep;
+    debug("Reading points");
     elem = 0;
     while (1)
     {
