@@ -12,6 +12,14 @@
 #define maxIteration 300
 #define PRINTERROR printf("An Error Has Occured\n")
 
+#define DEBUG
+
+#ifdef DEBUG
+#define debug(x) printf("%s. \n", x)
+#else
+#define debug(x) ;
+#endif
+
 
 /*
 Implementation convention - matrices are stored as linear arrays.
@@ -48,12 +56,12 @@ void PrintPoint(int d, int index, double *points)
     printf("\n");
 }
 
-void PrintPoints(int n, double *points)
+void PrintPoints(int n, int d, double *points)
 {
 	int i;
 	for (i = 0; i < n; i++)
 	{
-		PrintPoint(n, n * i, points);
+		PrintPoint(d, d * i, points);
 	}
 }
 
@@ -104,6 +112,7 @@ double *sym(int n, int d, double *points, int* status)
     double *A = AllocateMatrix(n, n, status);
     if (0 != *status)
     {
+        debug("sym: failed to allocate matrix A");
         return NULL;
     }
     for (i = 0; i < n; i++)
@@ -128,7 +137,10 @@ double *ddgFromA(int n, double *A, int* status)
     double sum;
     double *D = AllocateMatrix(n, n, status);
     if (0 != *status)
+    {
+        debug("ddgFromA: failed to allocate matrix.");
         return NULL;
+    }
     for (i = 0; i < n; i++)
     {
         sum = 0;
@@ -147,6 +159,7 @@ double *ddg(int n, int d, double *points, int* status)
     double *res, *D = sym(n, d, points, status);
     if (0 != *status)
     {
+        debug("ddg: failed to execute sym");
         return NULL;
     }
     res = ddgFromA(n, D, status);
@@ -160,17 +173,26 @@ double *norm(int n, int d, double *points, int* status)
     double *A, *D, *temp;
     A = sym(n, d, points, status);
     if (0 != *status)
+    {
+        debug("norm: failed to execute sym");
         return NULL;
+    }
     D = ddgFromA(n, A, status);
     if (0 != *status)
+    {
+        debug("norm: failed to execute ddgFromA");
         goto norm_free1;
+    }
     for (i = 0; i < n; i++)
     {
         D[Index(n,i,i)] = 1.0/sqrt(D[Index(n,i,i)]);
     }
     temp = MultiplyMatrices(n, n, n, D, A, status);
     if (0 != *status)
+    {
+        debug("norm: failed to multiply matrices");
         goto norm_free2;
+    }
     /*
     A is overwritten here since it's no longer in use
     It now stores the result of the calculation.
@@ -245,13 +267,22 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
     Hcur = H;
     Hnext = AllocateMatrix(n, k, status);
     if (0 != *status)
+    {
+        debug("symnmf: failed to allocate matrix Hnext");
         goto symnmf_free1;
+    }
     temp1 = AllocateMatrix(n, k, status);
     if (0 != *status)
+    {
+        debug("symnmf: failed to allocate matrix temp1");
         goto symnmf_free2;
+    }
     temp2 = AllocateMatrix(k, k, status);
     if (0 != *status)
+    {
+        debug("symnmf: failed to allocate matrix temp2");
         goto symnmf_free3;
+    }
     for (i = 0; i < maxIteration; i++)
     {
         ConvergenceStep(n, k, W, Hcur, Hnext, temp1, temp2);
@@ -265,6 +296,9 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
     free(temp1); 
     if (H == Hnext)
     {
+        #ifdef DEBUG
+        printf("Done after %d iterations, returning Hcur. ", i);
+        #endif
         return Hcur;
     }
     else
@@ -277,6 +311,9 @@ double *symnmf(int n, int k, double* W, double *H, int* status)
                 Hnext[index] = Hcur[index];
             }
         }
+        #ifdef DEBUG
+        printf("Done after %d iterations, returning Hnext. ", i);
+        #endif
         return Hnext;
     }
 symnmf_free3:
@@ -290,6 +327,7 @@ symnmf_free1:
 
 void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, int* status)
 {
+    debug("Reading points");
     int convs, pointIndex, elem;
     char sep;
     elem = 0;
@@ -306,10 +344,14 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
         return; 
     }
     *d = elem;
+    #ifdef DEBUG
+    printf("Found dimension %d", elem);
+    #endif
     *n = entryCount / *d;
     if ((*n) * (*d) != entryCount)
     {
         *status = 1;
+        debug("Incorrect entry count, throwing");
         PRINTERROR;
         return;
     }
@@ -322,6 +364,9 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
 			if (1 != convs)
             {
 				*status = 1;
+                #ifdef DEBUG
+                printf("Failed to convert float at line %d, index %d. \n", pointIndex, elem);
+                #endif
                 PRINTERROR;
                 return;
             }
@@ -330,6 +375,9 @@ void ReadPoints(FILE *stream, double *points, int entryCount, int *d, int *n, in
 				continue;
 			if (sep == '\n' && elem == *d - 1)
 				continue;
+            #ifdef DEBUG
+            printf("Incorrect separator at line %d, index %d. \n", pointIndex, elem);
+            #endif
             *status = 1;
             PRINTERROR;
             return;
@@ -364,6 +412,9 @@ int CountPoints(FILE *stream)
             ++res;
     } while (c != EOF);
     rewind(stream);
+    #ifdef DEBUG
+    printf("Found %d points. \n", res);
+    #endif
     return res;
 }
 
@@ -391,31 +442,38 @@ int main(int argc, char **argv)
     fclose(stream);
     if (0 != status)
     {
+        debug("Failed to read points, exiting");
         goto main_free1;
     }
     if (0 == strcmp(goal, "sym"))
     {
+        debug("Entering sym");
         res = sym(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "ddg"))
     {
+        debug("Entering ddg");
         res = ddg(n, d, points, &status);
     }
     else if (0 == strcmp(goal, "norm"))
     {
+        debug("Entering norm");
         res = norm(n, d, points, &status);
     }
     else 
     {
+        debug("Invalid goal");
         PRINTERROR;
     }
     if (0 != status || NULL == res)
     {
+        debug("Status 1 or res is NULL");
         PRINTERROR;
     }
     if (NULL != res)
     {
-        PrintPoints(n, res);
+        debug("Success, printing result");
+        PrintPoints(n, n, res);
         free(res);
     }
 main_free1:
